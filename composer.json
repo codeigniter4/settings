@@ -1,5 +1,5 @@
 {
-	"name": "codeigniter4-projects/settings",
+	"name": "codeigniter4projects/settings",
 	"type": "library",
 	"description": "Settings library for CodeIgniter 4",
 	"keywords": [
@@ -7,7 +7,7 @@
 		"codeigniter4",
 		"settings"
 	],
-	"homepage": "https://github.com/codeigniter4-projects/settings",
+	"homepage": "https://github.com/codeigniter4projects/settings",
 	"license": "MIT",
 	"authors": [
 		{
