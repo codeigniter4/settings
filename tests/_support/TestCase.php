@@ -4,14 +4,27 @@ namespace Tests\Support;
 
 use CodeIgniter\Test\CIUnitTestCase;
 
-class TestCase extends CIUnitTestCase
+abstract class TestCase extends CIUnitTestCase
 {
+	protected $namespace = 'Sparks\Settings';
+	protected $refresh   = true;
 
+	/**
+	 * @var string
+	 */
+	protected $table;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+	public function setUp(): void
+	{
+		parent::setUp();
 
-        $_SESSION = [];
-    }
+		$this->table = config('Settings')->database['table'];
+	}
+
+	public function tearDown(): void
+	{
+		parent::tearDown();
+
+		$this->resetServices();
+	}
 }
