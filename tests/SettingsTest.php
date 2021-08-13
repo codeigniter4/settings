@@ -11,17 +11,6 @@ class SettingsTest extends TestCase
 {
 	use DatabaseTestTrait;
 
-	protected $namespace = 'Sparks\Settings';
-	protected $refresh   = true;
-	protected $table;
-
-	public function setUp(): void
-	{
-		parent::setUp();
-
-		$this->table = config('Settings')->database['table'];
-	}
-
 	public function testSettingsGetsFromConfig()
 	{
 		$settings = new Settings();

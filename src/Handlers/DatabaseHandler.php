@@ -62,7 +62,7 @@ class DatabaseHandler extends BaseHandler
 	 *
 	 * @param string $class
 	 * @param string $key
-	 * @param null   $value
+	 * @param mixed  $value
 	 *
 	 * @return mixed|void
 	 */

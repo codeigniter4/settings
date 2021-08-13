@@ -78,7 +78,7 @@ class Settings
      *
      * @param string $class
      * @param string $key
-     * @param null   $value
+     * @param mixed  $value
      *
      * @return void|null
      */
