@@ -3,9 +3,12 @@
 namespace Tests\Support;
 
 use CodeIgniter\Test\CIUnitTestCase;
+use Nexus\PHPUnit\Extension\Expeditable;
 
 abstract class TestCase extends CIUnitTestCase
 {
+	use Expeditable;
+
 	protected $namespace = 'Sparks\Settings';
 	protected $refresh   = true;
 

@@ -24,12 +24,8 @@ on:
 
 jobs:
   build:
-    name: PHP ${{ matrix.php-versions }} Architectural Inspection
+    name: Architectural Inspection
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        php-versions: ['7.4', '8.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -37,7 +33,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: '8.0'
           tools: composer, pecl, phive, phpunit
           extensions: intl, json, mbstring, gd, mysqlnd, xdebug, xml, sqlite3
         env:
