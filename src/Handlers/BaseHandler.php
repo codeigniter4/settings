@@ -20,7 +20,7 @@ abstract class BaseHandler
 	 * Not all Handlers will support writing values.
 	 *
 	 * @param string $key
-	 * @param null   $value
+	 * @param mixed  $value
 	 *
 	 * @return mixed
 	 */
@@ -33,7 +33,7 @@ abstract class BaseHandler
 	 * Takes care of converting some item types so they can be safely
 	 * stored and re-hydrated into the config files.
 	 *
-	 * @param $value
+	 * @param mixed $value
 	 *
 	 * @return string|mixed
 	 */
@@ -57,7 +57,7 @@ abstract class BaseHandler
 	 * data might have been saved as, such as booleans
 	 * and serialized data.
 	 *
-	 * @param $value
+	 * @param mixed $value
 	 *
 	 * @return boolean|mixed
 	 */
@@ -79,7 +79,7 @@ abstract class BaseHandler
 	 *
 	 * Taken from Wordpress core functions.
 	 *
-	 * @param $data
+	 * @param mixed $data
 	 * @param boolean $strict Whether to be strict about the end of the string.
 	 *
 	 * @return boolean
