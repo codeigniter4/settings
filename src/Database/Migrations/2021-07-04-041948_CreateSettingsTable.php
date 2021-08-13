@@ -23,6 +23,11 @@ class CreateSettingsTable extends Migration
 				'type' => 'text',
 				'null' => true,
 			],
+			'type'       => [
+				'type'       => 'varchar',
+				'constraint' => 31,
+				'default'    => 'string',
+			],
 			'created_at' => [
 				'type' => 'datetime',
 				'null' => false,

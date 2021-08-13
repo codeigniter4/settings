@@ -47,6 +47,7 @@ class SettingsTest extends TestCase
 			'class' => 'Tests\Support\Config\Test',
 			'key'   => 'siteName',
 			'value' => 'Foo',
+			'type'  => 'string',
 		]);
 	}
 
@@ -60,10 +61,11 @@ class SettingsTest extends TestCase
 		$this->seeInDatabase($this->table, [
 			'class' => 'Tests\Support\Config\Test',
 			'key'   => 'siteName',
-			'value' => ':true',
+			'value' => '1',
+			'type'  => 'boolean',
 		]);
 
-		$this->assertEquals(true, $settings->get('Test', 'siteName'));
+		$this->assertSame(true, $settings->get('Test', 'siteName'));
 	}
 
 	public function testSetInsertsBoolFalse()
@@ -76,10 +78,11 @@ class SettingsTest extends TestCase
 		$this->seeInDatabase($this->table, [
 			'class' => 'Tests\Support\Config\Test',
 			'key'   => 'siteName',
-			'value' => ':false',
+			'value' => '0',
+			'type'  => 'boolean',
 		]);
 
-		$this->assertEquals(false, $settings->get('Test', 'siteName'));
+		$this->assertSame(false, $settings->get('Test', 'siteName'));
 	}
 
 	public function testSetInsertsArray()
@@ -94,6 +97,7 @@ class SettingsTest extends TestCase
 			'class' => 'Tests\Support\Config\Test',
 			'key'   => 'siteName',
 			'value' => serialize($data),
+			'type'  => 'array',
 		]);
 
 		$this->assertEquals($data, $settings->get('Test', 'siteName'));
@@ -111,6 +115,7 @@ class SettingsTest extends TestCase
 			'class' => 'Tests\Support\Config\Test',
 			'key'   => 'siteName',
 			'value' => serialize($data),
+			'type'  => 'object',
 		]);
 
 		$this->assertEquals($data, $settings->get('Test', 'siteName'));
