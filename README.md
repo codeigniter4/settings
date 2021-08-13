@@ -67,7 +67,13 @@ or telling your BaseController to always load it.
 
 ```php
 helper('setting');
-$name = setting('App', 'siteName');
+
+// Using 'dot' syntax to separate class and field name
+$name = setting('App.siteName');
+// Store a value
+setting('App.sitename', 'My Great Site');
+
+// Using the service through the helper
 $name = setting()->get('App', 'siteName');
 $setting()->set('App', 'siteName', 'My Great Site');
 ```
