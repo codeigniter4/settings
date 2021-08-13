@@ -7,27 +7,27 @@ use Nexus\PHPUnit\Extension\Expeditable;
 
 abstract class TestCase extends CIUnitTestCase
 {
-	use Expeditable;
+    use Expeditable;
 
-	protected $namespace = 'Sparks\Settings';
-	protected $refresh   = true;
+    protected $namespace = 'Sparks\Settings';
+    protected $refresh   = true;
 
-	/**
-	 * @var string
-	 */
-	protected $table;
+    /**
+     * @var string
+     */
+    protected $table;
 
-	public function setUp(): void
-	{
-		parent::setUp();
+    public function setUp(): void
+    {
+        parent::setUp();
 
-		$this->table = config('Settings')->database['table'];
-	}
+        $this->table = config('Settings')->database['table'];
+    }
 
-	public function tearDown(): void
-	{
-		parent::tearDown();
+    public function tearDown(): void
+    {
+        parent::tearDown();
 
-		$this->resetServices();
-	}
+        $this->resetServices();
+    }
 }
