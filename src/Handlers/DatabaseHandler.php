@@ -122,7 +122,14 @@ class DatabaseHandler extends BaseHandler
 
 		$this->table = config('Settings')->database['table'] ?? 'settings';
 
-		$rawValues = db_connect()->table($this->table)->get()->getResultObject();
+		$rawValues = db_connect()->table($this->table)->get();
+
+		if (is_bool($rawValues))
+		{
+			throw new \RuntimeException(db_connect()->error()['message'] ?? 'Error reading from database.');
+		}
+
+		$rawValues = $rawValues->getResultObject();
 
 		foreach ($rawValues as $row)
 		{
