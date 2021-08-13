@@ -1,5 +1,5 @@
 {
-	"name": "codeigniter4projects/settings",
+	"name": "codeigniter4/settings",
 	"type": "library",
 	"description": "Settings library for CodeIgniter 4",
 	"keywords": [
@@ -7,7 +7,7 @@
 		"codeigniter4",
 		"settings"
 	],
-	"homepage": "https://github.com/codeigniter4projects/settings",
+	"homepage": "https://github.com/codeigniter4/settings",
 	"license": "MIT",
 	"authors": [
 		{
@@ -30,13 +30,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Sparks\\Settings\\": "src",
-            "Tests\\": "tests",
-            "Tests\\Support\\": "tests/_support"
+			"Sparks\\Settings\\": "src"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
+            "Tests\\": "tests",
 			"Tests\\Support\\": "tests/_support"
 		}
 	},

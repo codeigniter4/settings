@@ -5,7 +5,7 @@ config classes.
 
 ## Quick Start
 
-1. Install with Composer: `> composer require codeigniter4projects/settings`
+1. Install with Composer: `> composer require codeigniter4/settings`
 2. Create a new migration and copy the provided class from below into it.
 
 `Settings` provides a simple interface that you can use in place of calling `config()` to allow you to read and store
@@ -19,7 +19,7 @@ and still allows your users to override those settings once the site is live.
 
 Install easily via Composer to take advantage of CodeIgniter 4's autoloading capabilities
 and always be up-to-date:
-* `> composer require codeigniter4projects/settings`
+* `> composer require codeigniter4/settings`
 
 Or, install manually by downloading the source files and adding the directory to
 `app/Config/Autoload.php`.
