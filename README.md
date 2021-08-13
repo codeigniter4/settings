@@ -26,50 +26,15 @@ Or, install manually by downloading the source files and adding the directory to
 
 ## Setup
 
-In order to store the settings in the database, create a new migration from the cli: 
+In order to store the settings in the database, you can run the provided migration: 
 
 ```
-> php spark make:migration CreateSettingsTable
+> php spark migrate --all
 ```
 
-This creates a new migration at `app/Database/Migrations`. Add the following code to the new file:
-
-```php
-<?php
-
-namespace App\Database\Migrations;
-
-use CodeIgniter\Database\Migration;
-use Config\Database;
-
-class CreateSettingsTable extends Migration
-{
-    public function up()
-    {
-        $this->forge->addField('id');
-        $this->forge->addField([
-           'class' => ['type' => 'varchar', 'constraint' => 255],
-           'key' => ['type' => 'varchar', 'constraint' => 255],
-           'value' => ['type' => 'text', 'null' => true],
-           'created_at' => ['type' => 'datetime', 'null' => false],
-           'updated_at' => ['type' => 'datetime', 'null' => false],
-       ]);
-        $this->forge->createTable(config('Settings')->database['table'], true);
-    }
-
-    public function down()
-    {
-        $this->forge->dropTable(config('Settings')->database['table']);
-    }
-}
-
-```
-
-Run the migration to create the table in the database: 
-
-```
-> php spark migrate
-```
+This will also migrate all other packages. If you don't want to do that you can copy the file
+from `vendor/codeigniter4/settings/src/Database/Migrations/2021-07-04-041948_CreateSettingsTable.php`
+into `app/Database/Migrations`, and migrate without the `--all` flag. 
 
 ## Usage
 
