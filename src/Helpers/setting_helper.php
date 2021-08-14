@@ -3,11 +3,10 @@
 if (! function_exists('setting'))
 {
 	/**
-	 * Provides a convenience interface to the
-	 * Bonfire/Settings/Settings class.
+	 * Provides a convenience interface to the Settings service.
 	 *
 	 * @param string|null $field
-	 * @param null        $value
+	 * @param mixed|null  $value
 	 *
 	 * @return mixed
 	 */

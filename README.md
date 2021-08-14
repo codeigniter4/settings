@@ -3,6 +3,11 @@
 Provides database storage and retrieval of application settings, with a fallback to the 
 config classes.
 
+[![](https://github.com/codeigniter4/settings/workflows/PHPUnit/badge.svg)](https://github.com/codeigniter4/settings/actions/workflows/test.yml)
+[![](https://github.com/codeigniter4/settings/workflows/PHPStan/badge.svg)](https://github.com/codeigniter4/settings/actions/workflows/analyze.yml)
+[![](https://github.com/codeigniter4/settings/workflows/Deptrac/badge.svg)](https://github.com/codeigniter4/settings/actions/workflows/inspect.yml)
+[![Coverage Status](https://coveralls.io/repos/github/codeigniter4/settings/badge.svg?branch=develop)](https://coveralls.io/github/codeigniter4/settings?branch=develop)
+
 ## Quick Start
 
 1. Install with Composer: `> composer require codeigniter4/settings`

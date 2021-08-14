@@ -57,8 +57,6 @@ class Settings
 	 *
 	 * @param string $class
 	 * @param string $key
-	 *
-	 * @return mixed|null
 	 */
 	public function get(string $class, string $key)
 	{
@@ -88,7 +86,7 @@ class Settings
 	 *
 	 * @param string $class
 	 * @param string $key
-	 * @param null   $value
+	 * @param mixed  $value
 	 *
 	 * @return void|null
 	 */

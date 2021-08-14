@@ -11,16 +11,11 @@ class HelperTest extends TestCase
 {
 	use DatabaseTestTrait;
 
-	protected $namespace = 'Sparks\Settings';
-	protected $refresh   = true;
-	protected $table;
-
 	public function setUp(): void
 	{
 		parent::setUp();
 
-		$this->table = config('Settings')->database['table'];
-		helper('setting');
+		helper(['setting']);
 	}
 
 	public function testReturnsServiceByDefault()
