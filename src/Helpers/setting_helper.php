@@ -4,7 +4,7 @@ if (! function_exists('setting')) {
     /**
      * Provides a convenience interface to the Settings service.
      *
-     * @param string|null $$key
+     * @param string|null $key
      * @param mixed|null  $value
      *
      * @return mixed
