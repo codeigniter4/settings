@@ -9,61 +9,61 @@ use Tests\Support\TestCase;
 
 class HelperTest extends TestCase
 {
-	use DatabaseTestTrait;
+    use DatabaseTestTrait;
 
-	public function setUp(): void
-	{
-		parent::setUp();
+    public function setUp(): void
+    {
+        parent::setUp();
 
-		helper(['setting']);
-	}
+        helper(['setting']);
+    }
 
-	public function testReturnsServiceByDefault()
-	{
-		$this->assertInstanceOf(Settings::class, setting());
-	}
+    public function testReturnsServiceByDefault()
+    {
+        $this->assertInstanceOf(Settings::class, setting());
+    }
 
-	public function testThrowsExceptionWithInvalidField()
-	{
-		$this->expectException(\RuntimeException::class);
+    public function testThrowsExceptionWithInvalidField()
+    {
+        $this->expectException(\RuntimeException::class);
 
-		setting('Foobar');
-	}
+        setting('Foobar');
+    }
 
-	public function testReturnsValueDotArray()
-	{
-		$this->hasInDatabase($this->table, [
-			'class'      => 'Foo',
-			'key'        => 'bar',
-			'value'      => 'baz',
-			'type'       => 'string',
-			'created_at' => Time::now()->toDateTimeString(),
-			'updated_at' => Time::now()->toDateTimeString(),
-		]);
+    public function testReturnsValueDotArray()
+    {
+        $this->hasInDatabase($this->table, [
+            'class'      => 'Foo',
+            'key'        => 'bar',
+            'value'      => 'baz',
+            'type'       => 'string',
+            'created_at' => Time::now()->toDateTimeString(),
+            'updated_at' => Time::now()->toDateTimeString(),
+        ]);
 
-		$this->assertEquals('baz', setting('Foo.bar'));
-	}
+        $this->assertEquals('baz', setting('Foo.bar'));
+    }
 
-	public function testSettingValueDotArray()
-	{
-		$this->hasInDatabase($this->table, [
-			'class'      => 'Foo',
-			'key'        => 'bar',
-			'value'      => 'baz',
-			'type'       => 'string',
-			'created_at' => Time::now()->toDateTimeString(),
-			'updated_at' => Time::now()->toDateTimeString(),
-		]);
+    public function testSettingValueDotArray()
+    {
+        $this->hasInDatabase($this->table, [
+            'class'      => 'Foo',
+            'key'        => 'bar',
+            'value'      => 'baz',
+            'type'       => 'string',
+            'created_at' => Time::now()->toDateTimeString(),
+            'updated_at' => Time::now()->toDateTimeString(),
+        ]);
 
-		setting('Foo.bar', false);
+        setting('Foo.bar', false);
 
-		$this->seeInDatabase($this->table, [
-			'class' => 'Foo',
-			'key'   => 'bar',
-			'value' => '0',
-			'type'  => 'boolean',
-		]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Foo',
+            'key'   => 'bar',
+            'value' => '0',
+            'type'  => 'boolean',
+        ]);
 
-		$this->assertSame(false, setting('Foo.bar'));
-	}
+        $this->assertSame(false, setting('Foo.bar'));
+    }
 }

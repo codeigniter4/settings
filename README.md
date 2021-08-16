@@ -39,7 +39,15 @@ In order to store the settings in the database, you can run the provided migrati
 
 This will also migrate all other packages. If you don't want to do that you can copy the file
 from `vendor/codeigniter4/settings/src/Database/Migrations/2021-07-04-041948_CreateSettingsTable.php`
-into `app/Database/Migrations`, and migrate without the `--all` flag. 
+into `app/Database/Migrations`, and migrate without the `--all` flag.
+
+## dot Notation
+
+This library uses what we call "dot notation" to specify the class name and the property name to use.
+These are joined by a dot, hence the name. 
+
+If you have a class named `App`, and the property you are wanting to use is `siteName`, then the key
+would be `App.siteName`.
 
 ## Usage
 
@@ -47,7 +55,7 @@ To retrieve a config value use the `settings` service.
 
 ```php
 // The same as config('App')->siteName;
-$siteName = service('settings')->get('App', 'siteName');
+$siteName = service('settings')->get('App.siteName');
 ```
 
 In this case we used the short class name, `App`, which the `config()` method automatically locates within the 
@@ -62,7 +70,14 @@ will be converted back into a boolean when retrieved. Arrays and objects are ser
 when retrieved. 
 
 ```php
-service('setting')->set('App', 'siteName', 'My Great Site');
+service('setting')->set('App.siteName', 'My Great Site');
+```
+
+You can delete a value from the persistent storage with the `forget()` method. Since it is removed from the storage,
+it effectively resets itself back to the default value in config file, if any.
+
+```php
+service('setting')->forget('App.siteName')
 ```
 
 ### Using the Helper
@@ -73,12 +88,33 @@ or telling your BaseController to always load it.
 ```php
 helper('setting');
 
-// Using 'dot' syntax to separate class and field name
 $name = setting('App.siteName');
 // Store a value
-setting('App.sitename', 'My Great Site');
+setting('App.siteName', 'My Great Site');
 
 // Using the service through the helper
-$name = setting()->get('App', 'siteName');
-$setting()->set('App', 'siteName', 'My Great Site');
+$name = setting()->get('App.siteName');
+setting()->set('App.siteName', 'My Great Site');
+
+// Forgetting a value
+setting()->forget('App.siteName');
 ```
+
+## Known Limitations
+
+The following are known limitations of the library:
+
+1. Using the `setting()` helper method does not support setting a `null` value on a property. For most cases, you are 
+better off forgetting the value or setting it to an empty string. If you need to, you can set it by grabbing 
+the service and using the `set()` method:
+
+```php
+service('settings')->set('App.siteName', null);
+setting()->set('App.siteName', null);
+```
+
+2. You can currently only store a single setting at a time. While the `DatabaseHandler` uses a local cache to
+keep performance as high as possible for reads, writes must be done one at a time. 
+3. You can only access the first level within a property directly. In most config classes this is a non-issue, 
+since the properties are simple values. Some config files, like the `database` file, contain properties that
+are arrays.

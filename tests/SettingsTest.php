@@ -7,144 +7,177 @@ use CodeIgniter\I18n\Time;
 use CodeIgniter\Test\DatabaseTestTrait;
 use Tests\Support\TestCase;
 
+/**
+ * NOTE: $this->table is set in the TestCase itself
+ */
 class SettingsTest extends TestCase
 {
-	use DatabaseTestTrait;
+    use DatabaseTestTrait;
 
-	public function testSettingsGetsFromConfig()
-	{
-		$settings = new Settings();
+    public function testSettingsGetsFromConfig()
+    {
+        $settings = new Settings();
 
-		$this->assertEquals(config('Test')->siteName, $settings->get('Test', 'siteName'));
-	}
+        $this->assertEquals(config('Test')->siteName, $settings->get('Test.siteName'));
+    }
 
-	public function testSettingsDatabaseNotFound()
-	{
-		$settings = new Settings();
+    public function testSettingsDatabaseNotFound()
+    {
+        $settings = new Settings();
 
-		$this->assertEquals(config('Test')->siteName, $settings->get('Test', 'siteName'));
-	}
+        $this->assertEquals(config('Test')->siteName, $settings->get('Test.siteName'));
+    }
 
-	public function testSetInsertsNewRows()
-	{
-		$settings = new Settings();
+    public function testSetInsertsNewRows()
+    {
+        $settings = new Settings();
 
-		$results = $settings->set('Test', 'siteName', 'Foo');
+        $results = $settings->set('Test.siteName', 'Foo');
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => 'Foo',
-			'type'  => 'string',
-		]);
-	}
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => 'Foo',
+            'type'  => 'string',
+        ]);
+    }
 
-	public function testSetInsertsBoolTrue()
-	{
-		$settings = new Settings();
+    public function testSetInsertsBoolTrue()
+    {
+        $settings = new Settings();
 
-		$results = $settings->set('Test', 'siteName', true);
+        $results = $settings->set('Test.siteName', true);
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => '1',
-			'type'  => 'boolean',
-		]);
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => '1',
+            'type'  => 'boolean',
+        ]);
 
-		$this->assertSame(true, $settings->get('Test', 'siteName'));
-	}
+        $this->assertSame(true, $settings->get('Test.siteName'));
+    }
 
-	public function testSetInsertsBoolFalse()
-	{
-		$settings = new Settings();
+    public function testSetInsertsBoolFalse()
+    {
+        $settings = new Settings();
 
-		$results = $settings->set('Test', 'siteName', false);
+        $results = $settings->set('Test.siteName', false);
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => '0',
-			'type'  => 'boolean',
-		]);
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => '0',
+            'type'  => 'boolean',
+        ]);
 
-		$this->assertSame(false, $settings->get('Test', 'siteName'));
-	}
+        $this->assertSame(false, $settings->get('Test.siteName'));
+    }
 
-	public function testSetInsertsArray()
-	{
-		$settings = new Settings();
-		$data     = ['foo' => 'bar'];
+    public function testSetInsertsArray()
+    {
+        $settings = new Settings();
+        $data     = ['foo' => 'bar'];
 
-		$results = $settings->set('Test', 'siteName', $data);
+        $results = $settings->set('Test.siteName', $data);
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => serialize($data),
-			'type'  => 'array',
-		]);
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => serialize($data),
+            'type'  => 'array',
+        ]);
 
-		$this->assertEquals($data, $settings->get('Test', 'siteName'));
-	}
+        $this->assertEquals($data, $settings->get('Test.siteName'));
+    }
 
-	public function testSetInsertsObject()
-	{
-		$settings = new Settings();
-		$data     = (object)['foo' => 'bar'];
+    public function testSetInsertsObject()
+    {
+        $settings = new Settings();
+        $data     = (object)['foo' => 'bar'];
 
-		$results = $settings->set('Test', 'siteName', $data);
+        $results = $settings->set('Test.siteName', $data);
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => serialize($data),
-			'type'  => 'object',
-		]);
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => serialize($data),
+            'type'  => 'object',
+        ]);
 
-		$this->assertEquals($data, $settings->get('Test', 'siteName'));
-	}
+        $this->assertEquals($data, $settings->get('Test.siteName'));
+    }
 
-	public function testSetUpdatesExistingRows()
-	{
-		$settings = new Settings();
+    public function testSetUpdatesExistingRows()
+    {
+        $settings = new Settings();
 
-		$this->hasInDatabase($this->table, [
-			'class'      => 'Tests\Support\Config\Test',
-			'key'        => 'siteName',
-			'value'      => 'foo',
-			'created_at' => Time::now()->toDateTimeString(),
-			'updated_at' => Time::now()->toDateTimeString(),
-		]);
+        $this->hasInDatabase($this->table, [
+            'class'      => 'Tests\Support\Config\Test',
+            'key'        => 'siteName',
+            'value'      => 'foo',
+            'created_at' => Time::now()->toDateTimeString(),
+            'updated_at' => Time::now()->toDateTimeString(),
+        ]);
 
-		$results = $settings->set('Test', 'siteName', 'Bar');
+        $results = $settings->set('Test.siteName', 'Bar');
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Tests\Support\Config\Test',
-			'key'   => 'siteName',
-			'value' => 'Bar',
-		]);
-	}
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => 'Bar',
+        ]);
+    }
 
-	public function testWorksWithoutConfigClass()
-	{
-		$settings = new Settings();
+    public function testWorksWithoutConfigClass()
+    {
+        $settings = new Settings();
 
-		$results = $settings->set('Nada', 'siteName', 'Bar');
+        $results = $settings->set('Nada.siteName', 'Bar');
 
-		$this->assertTrue($results);
-		$this->seeInDatabase($this->table, [
-			'class' => 'Nada',
-			'key'   => 'siteName',
-			'value' => 'Bar',
-		]);
+        $this->assertTrue($results);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
+            'value' => 'Bar',
+        ]);
 
-		$this->assertEquals('Bar', $settings->get('Nada', 'siteName'));
-	}
+        $this->assertEquals('Bar', $settings->get('Nada.siteName'));
+    }
+
+    public function testForgetSuccess()
+    {
+        $settings = new Settings();
+
+        $this->hasInDatabase($this->table, [
+            'class'      => 'Tests\Support\Config\Test',
+            'key'        => 'siteName',
+            'value'      => 'foo',
+            'created_at' => Time::now()->toDateTimeString(),
+            'updated_at' => Time::now()->toDateTimeString(),
+        ]);
+
+        $results = $settings->forget('Test.siteName');
+
+        $this->assertTrue($results);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+        ]);
+    }
+
+    public function testForgetWithNoStoredRecord()
+    {
+        $settings = new Settings();
+
+        $results = $settings->forget('Test.siteName');
+
+        $this->assertTrue($results);
+    }
 }
