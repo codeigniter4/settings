@@ -22,10 +22,6 @@ class Services extends BaseService
 {
     /**
      * Returns the Settings manager class.
-     *
-     * @param bool $getShared
-     *
-     * @return Settings
      */
     public static function settings(bool $getShared = true): Settings
     {

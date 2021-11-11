@@ -3,7 +3,6 @@
 namespace Sparks\Settings\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
-use Config\Database;
 
 class CreateSettingsTable extends Migration
 {
@@ -11,19 +10,19 @@ class CreateSettingsTable extends Migration
     {
         $this->forge->addField('id');
         $this->forge->addField([
-            'class'      => [
+            'class' => [
                 'type'       => 'varchar',
                 'constraint' => 255,
             ],
-            'key'        => [
+            'key' => [
                 'type'       => 'varchar',
                 'constraint' => 255,
             ],
-            'value'      => [
+            'value' => [
                 'type' => 'text',
                 'null' => true,
             ],
-            'type'       => [
+            'type' => [
                 'type'       => 'varchar',
                 'constraint' => 31,
                 'default'    => 'string',

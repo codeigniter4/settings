@@ -23,7 +23,7 @@ class DatabaseHandler extends BaseHandler
      * Have the settings been read and cached
      * from the database yet?
      *
-     * @var boolean
+     * @var bool
      */
     private $hydrated = false;
 
@@ -39,9 +39,6 @@ class DatabaseHandler extends BaseHandler
      * To boost performance, all of the values are
      * read and stored in $this->settings the first
      * time, and then used from there the rest of the request.
-     *
-     * @param string $class
-     * @param string $property
      *
      * @return mixed|null
      */
@@ -59,9 +56,7 @@ class DatabaseHandler extends BaseHandler
     /**
      * Stores values into the database for later retrieval.
      *
-     * @param string $class
-     * @param string $property
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return mixed|void
      */
@@ -84,14 +79,14 @@ class DatabaseHandler extends BaseHandler
                 ]);
         } else {
             $result = db_connect()->table($this->table)
-               ->insert([
-                   'class'      => $class,
-                   'key'        => $property,
-                   'value'      => $value,
-                   'type'       => $type,
-                   'created_at' => $time,
-                   'updated_at' => $time,
-               ]);
+                ->insert([
+                    'class'      => $class,
+                    'key'        => $property,
+                    'value'      => $value,
+                    'type'       => $type,
+                    'created_at' => $time,
+                    'updated_at' => $time,
+                ]);
         }
 
         // Update our cache
@@ -112,9 +107,6 @@ class DatabaseHandler extends BaseHandler
     /**
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
-     *
-     * @param string $class
-     * @param string $property
      */
     public function forget(string $class, string $property)
     {

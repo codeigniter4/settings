@@ -7,9 +7,6 @@ abstract class BaseHandler
     /**
      * Returns a single value from the handler, if stored.
      *
-     * @param string $class
-     * @param string $property
-     *
      * @return mixed
      */
     abstract public function get(string $class, string $property);
@@ -19,8 +16,7 @@ abstract class BaseHandler
      * MUST override this method to provide that functionality.
      * Not all Handlers will support writing values.
      *
-     * @param string $property
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return mixed
      */
@@ -35,12 +31,12 @@ abstract class BaseHandler
      *
      * @param mixed $value
      *
-     * @return string|mixed
+     * @return mixed|string
      */
     protected function prepareValue($value)
     {
         if (is_bool($value)) {
-            return (int)$value;
+            return (int) $value;
         }
 
         if (is_array($value) || is_object($value)) {
@@ -57,7 +53,7 @@ abstract class BaseHandler
      *
      * @param mixed $value
      *
-     * @return boolean|mixed
+     * @return bool|mixed
      */
     protected function parseValue($value, string $type)
     {
@@ -76,10 +72,8 @@ abstract class BaseHandler
      *
      * Taken from Wordpress core functions.
      *
-     * @param mixed   $data
-     * @param boolean $strict Whether to be strict about the end of the string.
-     *
-     * @return boolean
+     * @param mixed $data
+     * @param bool  $strict Whether to be strict about the end of the string.
      */
     protected function isSerialized($data, $strict = true): bool
     {
@@ -118,6 +112,7 @@ abstract class BaseHandler
             }
         }
         $token = $data[0];
+
         switch ($token) {
             case 's':
                 if ($strict) {
@@ -128,15 +123,19 @@ abstract class BaseHandler
                     return false;
                 }
                 // Or else fall through.
+                // no break
             case 'a':
             case 'O':
                 return (bool) preg_match("/^{$token}:[0-9]+:/s", $data);
+
             case 'b':
             case 'i':
             case 'd':
                 $end = $strict ? '$' : '';
-                return (bool) preg_match("/^{$token}:[0-9.E+-]+;$end/", $data);
+
+                return (bool) preg_match("/^{$token}:[0-9.E+-]+;{$end}/", $data);
         }
+
         return false;
     }
 }

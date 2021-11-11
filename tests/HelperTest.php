@@ -7,11 +7,14 @@ use CodeIgniter\Test\DatabaseTestTrait;
 use Sparks\Settings\Settings;
 use Tests\Support\TestCase;
 
-class HelperTest extends TestCase
+/**
+ * @internal
+ */
+final class HelperTest extends TestCase
 {
     use DatabaseTestTrait;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +44,7 @@ class HelperTest extends TestCase
             'updated_at' => Time::now()->toDateTimeString(),
         ]);
 
-        $this->assertEquals('baz', setting('Foo.bar'));
+        $this->assertSame('baz', setting('Foo.bar'));
     }
 
     public function testSettingValueDotArray()
