@@ -17,7 +17,7 @@ if (! function_exists('setting')) {
         }
 
         // Getting the value?
-        if ($value === null) {
+        if (count(func_get_args()) === 1) {
             return $setting->get($key);
         }
 
