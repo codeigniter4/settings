@@ -25,7 +25,7 @@
         "mockery/mockery": "^1.0",
         "nexusphp/tachycardia": "^1.0",
         "php-coveralls/php-coveralls": "^2.4",
-        "phpstan/phpstan": "^0.12 || ^1.0",
+        "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^9.0",
         "squizlabs/php_codesniffer": "^3.3"
     },
@@ -56,9 +56,18 @@
             "bash -c \"if [ -f admin/setup.sh ]; then bash admin/setup.sh; fi\""
         ],
         "analyze": "phpstan analyze",
+        "ci": [
+            "Composer\\Config::disableProcessTimeout",
+            "@deduplicate",
+            "@analyze",
+            "@test",
+            "@inspect",
+            "@style"
+        ],
+        "deduplicate": "phpcpd app/ src/",
         "inspect": "deptrac analyze --cache-file=build/deptrac.cache",
         "mutate": "infection --threads=2 --skip-initial-tests --coverage=build/phpunit",
-        "style": "phpcbf --standard=PSR12 tests/ src/",
+        "style": "php-cs-fixer fix --verbose --ansi --using-cache=no",
         "test": "phpunit"
     }
 }

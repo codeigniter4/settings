@@ -57,7 +57,7 @@ class SettingsTest extends TestCase
             'type'  => 'boolean',
         ]);
 
-        $this->assertSame(true, $settings->get('Test.siteName'));
+        $this->assertTrue($settings->get('Test.siteName'));
     }
 
     public function testSetInsertsBoolFalse()
@@ -74,7 +74,7 @@ class SettingsTest extends TestCase
             'type'  => 'boolean',
         ]);
 
-        $this->assertSame(false, $settings->get('Test.siteName'));
+        $this->assertFalse($settings->get('Test.siteName'));
     }
 
     public function testSetInsertsArray()
