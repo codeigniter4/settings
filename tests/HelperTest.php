@@ -64,6 +64,6 @@ class HelperTest extends TestCase
             'type'  => 'boolean',
         ]);
 
-        $this->assertSame(false, setting('Foo.bar'));
+        $this->assertFalse(setting('Foo.bar'));
     }
 }
