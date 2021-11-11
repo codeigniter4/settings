@@ -18,4 +18,3 @@ $options = [
 ];
 
 return Factory::create(new CodeIgniter4(), $overrides, $options)->forProjects();
-

@@ -2,15 +2,17 @@
 
 namespace Tests;
 
-use Sparks\Settings\Settings;
 use CodeIgniter\I18n\Time;
 use CodeIgniter\Test\DatabaseTestTrait;
+use Sparks\Settings\Settings;
 use Tests\Support\TestCase;
 
 /**
  * NOTE: $this->table is set in the TestCase itself
+ *
+ * @internal
  */
-class SettingsTest extends TestCase
+final class SettingsTest extends TestCase
 {
     use DatabaseTestTrait;
 
@@ -18,14 +20,14 @@ class SettingsTest extends TestCase
     {
         $settings = new Settings();
 
-        $this->assertEquals(config('Test')->siteName, $settings->get('Test.siteName'));
+        $this->assertSame(config('Test')->siteName, $settings->get('Test.siteName'));
     }
 
     public function testSettingsDatabaseNotFound()
     {
         $settings = new Settings();
 
-        $this->assertEquals(config('Test')->siteName, $settings->get('Test.siteName'));
+        $this->assertSame(config('Test')->siteName, $settings->get('Test.siteName'));
     }
 
     public function testSetInsertsNewRows()
@@ -92,13 +94,13 @@ class SettingsTest extends TestCase
             'type'  => 'array',
         ]);
 
-        $this->assertEquals($data, $settings->get('Test.siteName'));
+        $this->assertSame($data, $settings->get('Test.siteName'));
     }
 
     public function testSetInsertsObject()
     {
         $settings = new Settings();
-        $data     = (object)['foo' => 'bar'];
+        $data     = (object) ['foo' => 'bar'];
 
         $results = $settings->set('Test.siteName', $data);
 
@@ -110,7 +112,7 @@ class SettingsTest extends TestCase
             'type'  => 'object',
         ]);
 
-        $this->assertEquals($data, $settings->get('Test.siteName'));
+        $this->assertSame((array) $data, (array) $settings->get('Test.siteName'));
     }
 
     public function testSetUpdatesExistingRows()
@@ -148,7 +150,7 @@ class SettingsTest extends TestCase
             'value' => 'Bar',
         ]);
 
-        $this->assertEquals('Bar', $settings->get('Nada.siteName'));
+        $this->assertSame('Bar', $settings->get('Nada.siteName'));
     }
 
     public function testForgetSuccess()

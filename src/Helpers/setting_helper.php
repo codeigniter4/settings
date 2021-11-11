@@ -4,12 +4,11 @@ if (! function_exists('setting')) {
     /**
      * Provides a convenience interface to the Settings service.
      *
-     * @param string|null $key
-     * @param mixed|null  $value
+     * @param mixed|null $value
      *
      * @return mixed
      */
-    function setting(string $key = null, $value = null)
+    function setting(?string $key = null, $value = null)
     {
         $setting = service('settings');
 

@@ -7,7 +7,6 @@ namespace Sparks\Settings;
  * retrieve settings that were original set in config files
  * in the core application or any third-party module.
  */
-
 class Settings
 {
     /**
@@ -51,8 +50,6 @@ class Settings
      * Retrieve a value from either the database
      * or from a config file matching the name
      * file.arg.optionalArg
-     *
-     * @param string $key
      */
     public function get(string $key)
     {
@@ -73,8 +70,7 @@ class Settings
     /**
      * Save a value to the writable handler for later retrieval.
      *
-     * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return void|null
      */
@@ -91,8 +87,6 @@ class Settings
      * Removes a setting from the persistent storage,
      * effectively returning the value to the default value
      * found in the config file, if any.
-     *
-     * @param string $key
      */
     public function forget(string $key)
     {
@@ -120,8 +114,6 @@ class Settings
     /**
      * Analyzes the given key and breaks it into the class.field parts.
      *
-     * @param string $key
-     *
      * @return string[]
      */
     private function parseDotSyntax(string $key): array
@@ -139,10 +131,7 @@ class Settings
     /**
      * Given a key in class.property syntax, will split the values
      * and determine the fully qualified class name, if possible.
-     *
-     * @param string $key
-     * @return array
-    */
+     */
     private function prepareClassAndProperty(string $key): array
     {
         [$class, $property] = $this->parseDotSyntax($key);

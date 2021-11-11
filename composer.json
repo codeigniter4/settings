@@ -20,9 +20,11 @@
         "php": "^7.3 || ^8.0"
     },
     "require-dev": {
+        "codeigniter/coding-standard": "^1.1",
         "codeigniter4/codeigniter4": "dev-develop",
         "fakerphp/faker": "^1.9",
         "mockery/mockery": "^1.0",
+        "nexusphp/cs-config": "^3.1",
         "nexusphp/tachycardia": "^1.0",
         "php-coveralls/php-coveralls": "^2.4",
         "phpstan/phpstan": "^1.0",

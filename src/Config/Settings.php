@@ -19,8 +19,8 @@ class Settings
      * Database handler settings.
      */
     public $database = [
-        'class' => DatabaseHandler::class,
-        'table' => 'settings',
+        'class'     => DatabaseHandler::class,
+        'table'     => 'settings',
         'writeable' => true,
     ];
 }

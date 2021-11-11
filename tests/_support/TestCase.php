@@ -17,14 +17,14 @@ abstract class TestCase extends CIUnitTestCase
      */
     protected $table;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->table = config('Settings')->database['table'];
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         parent::tearDown();
 
