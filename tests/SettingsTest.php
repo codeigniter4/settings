@@ -16,6 +16,17 @@ final class SettingsTest extends TestCase
 {
     use DatabaseTestTrait;
 
+    public function testSettingsUsesParameter()
+    {
+        $config           = config('Settings');
+        $config->handlers = [];
+
+        $settings = new Settings($config);
+        $result   = $this->getPrivateProperty($settings, 'handlers');
+
+        $this->assertSame([], $result);
+    }
+
     public function testSettingsGetsFromConfig()
     {
         $settings = new Settings();

@@ -29,6 +29,6 @@ class Services extends BaseService
             return static::getSharedInstance('settings');
         }
 
-        return new Settings();
+        return new Settings(config('Settings'));
     }
 }
