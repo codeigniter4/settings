@@ -33,6 +33,20 @@ final class HelperTest extends TestCase
         setting('Foobar');
     }
 
+    public function testSetsNull()
+    {
+        setting('Foo.bam', null);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Foo',
+            'key'   => 'bam',
+            'value' => null,
+            'type'  => 'NULL',
+        ]);
+
+        $this->assertNull(setting('Foo.bam'));
+    }
+
     public function testReturnsValueDotArray()
     {
         $this->hasInDatabase($this->table, [
