@@ -2,6 +2,8 @@
 
 namespace Sparks\Settings;
 
+use Sparks\Settings\Config\Settings as SettingsConfig;
+
 /**
  * Allows developers a single location to store and
  * retrieve settings that were original set in config files
@@ -27,10 +29,13 @@ class Settings
     /**
      * Grabs instances of our handlers.
      */
-    public function __construct()
+    public function __construct(?SettingsConfig $config = null)
     {
-        foreach (config('Settings')->handlers as $handler) {
-            $class = config('Settings')->{$handler}['class'] ?? null;
+        /** @var SettingsConfig $config */
+        $config = $config ?? config('Settings');
+
+        foreach ($config->handlers as $handler) {
+            $class = $config->{$handler}['class'] ?? null;
 
             if ($class === null) {
                 continue;
@@ -38,7 +43,7 @@ class Settings
 
             $this->handlers[$handler] = new $class();
 
-            $writeable = config('Settings')->{$handler}['writeable'] ?? null;
+            $writeable = $config->{$handler}['writeable'] ?? null;
 
             if ($writeable) {
                 $this->writeHandler = $handler;
