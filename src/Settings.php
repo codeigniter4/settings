@@ -69,7 +69,7 @@ class Settings
             }
         }
 
-        // If no contextual value was found then fall back on a global
+        // If no contextual value was found then fall back to general
         if ($context !== null) {
             return $this->get($key);
         }
