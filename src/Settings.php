@@ -31,11 +31,8 @@ class Settings
     /**
      * Grabs instances of our handlers.
      */
-    public function __construct(?SettingsConfig $config = null)
+    public function __construct(SettingsConfig $config)
     {
-        /** @var SettingsConfig $config */
-        $config = $config ?? config('Settings');
-
         foreach ($config->handlers as $handler) {
             $class = $config->{$handler}['class'] ?? null;
 
