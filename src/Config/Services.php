@@ -1,10 +1,10 @@
 <?php
 
-namespace Sparks\Settings\Config;
+namespace CodeIgniter\Settings\Config;
 
 use CodeIgniter\Config\BaseService;
-use Sparks\Settings\Config\Settings as SettingsConfig;
-use Sparks\Settings\Settings;
+use CodeIgniter\Settings\Config\Settings as SettingsConfig;
+use CodeIgniter\Settings\Settings;
 
 /**
  * Services Configuration file.

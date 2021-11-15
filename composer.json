@@ -33,7 +33,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Sparks\\Settings\\": "src"
+            "CodeIgniter\\Settings\\": "src"
         },
         "exclude-from-classmap": [
             "**/Database/Migrations/**"

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sparks\Settings\Database\Migrations;
+namespace CodeIgniter\Settings\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 

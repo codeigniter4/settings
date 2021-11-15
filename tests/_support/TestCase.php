@@ -9,7 +9,7 @@ abstract class TestCase extends CIUnitTestCase
 {
     use Expeditable;
 
-    protected $namespace = 'Sparks\Settings';
+    protected $namespace = 'CodeIgniter\Settings';
     protected $refresh   = true;
 
     /**

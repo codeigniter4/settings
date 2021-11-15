@@ -3,8 +3,8 @@
 namespace CodeIgniter4\Tests;
 
 use CodeIgniter\I18n\Time;
+use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
-use Sparks\Settings\Settings;
 use Tests\Support\TestCase;
 
 /**

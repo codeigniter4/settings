@@ -1,8 +1,8 @@
 <?php
 
-namespace Sparks\Settings\Config;
+namespace CodeIgniter\Settings\Config;
 
-use Sparks\Settings\Handlers\DatabaseHandler;
+use CodeIgniter\Settings\Handlers\DatabaseHandler;
 
 class Settings
 {
