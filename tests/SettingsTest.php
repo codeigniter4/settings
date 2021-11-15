@@ -29,21 +29,21 @@ final class SettingsTest extends TestCase
 
     public function testSettingsGetsFromConfig()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $this->assertSame(config('Test')->siteName, $settings->get('Test.siteName'));
     }
 
     public function testSettingsDatabaseNotFound()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $this->assertSame(config('Test')->siteName, $settings->get('Test.siteName'));
     }
 
     public function testSetInsertsNewRows()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Test.siteName', 'Foo');
 
@@ -58,7 +58,7 @@ final class SettingsTest extends TestCase
 
     public function testSetInsertsBoolTrue()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Test.siteName', true);
 
@@ -75,7 +75,7 @@ final class SettingsTest extends TestCase
 
     public function testSetInsertsBoolFalse()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Test.siteName', false);
 
@@ -92,7 +92,7 @@ final class SettingsTest extends TestCase
 
     public function testSetInsertsNull()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Test.siteName', null);
 
@@ -109,7 +109,7 @@ final class SettingsTest extends TestCase
 
     public function testSetInsertsArray()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
         $data     = ['foo' => 'bar'];
 
         $results = $settings->set('Test.siteName', $data);
@@ -127,7 +127,7 @@ final class SettingsTest extends TestCase
 
     public function testSetInsertsObject()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
         $data     = (object) ['foo' => 'bar'];
 
         $results = $settings->set('Test.siteName', $data);
@@ -145,7 +145,7 @@ final class SettingsTest extends TestCase
 
     public function testSetUpdatesExistingRows()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $this->hasInDatabase($this->table, [
             'class'      => 'Tests\Support\Config\Test',
@@ -167,7 +167,7 @@ final class SettingsTest extends TestCase
 
     public function testWorksWithoutConfigClass()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Nada.siteName', 'Bar');
 
@@ -183,7 +183,7 @@ final class SettingsTest extends TestCase
 
     public function testForgetSuccess()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $this->hasInDatabase($this->table, [
             'class'      => 'Tests\Support\Config\Test',
@@ -204,7 +204,7 @@ final class SettingsTest extends TestCase
 
     public function testForgetWithNoStoredRecord()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->forget('Test.siteName');
 
@@ -213,7 +213,7 @@ final class SettingsTest extends TestCase
 
     public function testSetWithContext()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $results = $settings->set('Test.siteName', 'Banana', 'environment:test');
 
@@ -229,7 +229,7 @@ final class SettingsTest extends TestCase
 
     public function testGetWithContext()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $settings->set('Test.siteName', 'NoContext');
         $settings->set('Test.siteName', 'YesContext', 'testing:true');
@@ -240,7 +240,7 @@ final class SettingsTest extends TestCase
 
     public function testGetWithoutContextUsesGlobal()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $settings->set('Test.siteName', 'NoContext');
 
@@ -249,7 +249,7 @@ final class SettingsTest extends TestCase
 
     public function testForgetWithContext()
     {
-        $settings = new Settings();
+        $settings = new Settings(config('Settings'));
 
         $settings->set('Test.siteName', 'Bar');
         $settings->set('Test.siteName', 'Amnesia', 'category:disease');

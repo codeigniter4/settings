@@ -3,6 +3,7 @@
 namespace Sparks\Settings\Config;
 
 use CodeIgniter\Config\BaseService;
+use Sparks\Settings\Config\Settings as SettingsConfig;
 use Sparks\Settings\Settings;
 
 /**
@@ -23,12 +24,15 @@ class Services extends BaseService
     /**
      * Returns the Settings manager class.
      */
-    public static function settings(bool $getShared = true): Settings
+    public static function settings(?SettingsConfig $config = null, bool $getShared = true): Settings
     {
         if ($getShared) {
-            return static::getSharedInstance('settings');
+            return static::getSharedInstance('settings', $config);
         }
 
-        return new Settings(config('Settings'));
+        /** @var SettingsConfig $config */
+        $config = $config ?? config('Settings');
+
+        return new Settings($config);
     }
 }
