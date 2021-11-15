@@ -2,14 +2,21 @@
 
 namespace Sparks\Settings\Handlers;
 
+use RuntimeException;
+
 abstract class BaseHandler
 {
+    /**
+     * Checks whether this handler has a value set.
+     */
+    abstract public function has(string $class, string $property, ?string $context = null): bool;
+
     /**
      * Returns a single value from the handler, if stored.
      *
      * @return mixed
      */
-    abstract public function get(string $class, string $property);
+    abstract public function get(string $class, string $property, ?string $context = null);
 
     /**
      * If the Handler supports saving values, it
@@ -18,11 +25,27 @@ abstract class BaseHandler
      *
      * @param mixed $value
      *
+     * @throws RuntimeException
+     *
      * @return mixed
      */
-    public function set(string $class, string $property, $value = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null)
     {
-        throw new \RuntimeException('Set method not implemented for current Settings handler.');
+        throw new RuntimeException('Set method not implemented for current Settings handler.');
+    }
+
+    /**
+     * If the Handler supports forgetting values, it
+     * MUST override this method to provide that functionality.
+     * Not all Handlers will support writing values.
+     *
+     * @throws RuntimeException
+     *
+     * @return mixed
+     */
+    public function forget(string $class, string $property, ?string $context = null)
+    {
+        throw new RuntimeException('Forget method not implemented for current Settings handler.');
     }
 
     /**
