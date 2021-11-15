@@ -2,6 +2,8 @@
 
 namespace Sparks\Settings;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Sparks\Settings\Config\Settings as SettingsConfig;
 
 /**
@@ -52,21 +54,24 @@ class Settings
     }
 
     /**
-     * Retrieve a value from either the database
+     * Retrieve a value from any handler
      * or from a config file matching the name
      * file.arg.optionalArg
      */
-    public function get(string $key)
+    public function get(string $key, ?string $context = null)
     {
         [$class, $property, $config] = $this->prepareClassAndProperty($key);
 
-        // Try grabbing the values from any of our handlers
+        // Check each of our handlers
         foreach ($this->handlers as $name => $handler) {
-            $value = $handler->get($class, $property);
-
-            if ($value !== null) {
-                return $value;
+            if ($handler->has($class, $property, $context)) {
+                return $handler->get($class, $property, $context);
             }
+        }
+
+        // If no contextual value was found then fall back on a global
+        if ($context !== null) {
+            return $this->get($key);
         }
 
         return $config->{$property} ?? null;
@@ -79,13 +84,11 @@ class Settings
      *
      * @return void|null
      */
-    public function set(string $key, $value = null)
+    public function set(string $key, $value = null, ?string $context = null)
     {
         [$class, $property] = $this->prepareClassAndProperty($key);
 
-        $handler = $this->getWriteHandler();
-
-        return $handler->set($class, $property, $value);
+        return $this->getWriteHandler()->set($class, $property, $value, $context);
     }
 
     /**
@@ -93,24 +96,24 @@ class Settings
      * effectively returning the value to the default value
      * found in the config file, if any.
      */
-    public function forget(string $key)
+    public function forget(string $key, ?string $context = null)
     {
         [$class, $property] = $this->prepareClassAndProperty($key);
 
-        $handler = $this->getWriteHandler();
-
-        return $handler->forget($class, $property);
+        return $this->getWriteHandler()->forget($class, $property, $context);
     }
 
     /**
      * Returns the handler that is set to store values.
+     *
+     * @throws RuntimeException
      *
      * @return mixed
      */
     private function getWriteHandler()
     {
         if (empty($this->writeHandler) || ! isset($this->handlers[$this->writeHandler])) {
-            throw new \RuntimeException('Unable to find a Settings handler that can store values.');
+            throw new RuntimeException('Unable to find a Settings handler that can store values.');
         }
 
         return $this->handlers[$this->writeHandler];
@@ -118,6 +121,8 @@ class Settings
 
     /**
      * Analyzes the given key and breaks it into the class.field parts.
+     *
+     * @throws InvalidArgumentException
      *
      * @return string[]
      */
@@ -127,7 +132,7 @@ class Settings
         $parts = explode('.', $key);
 
         if (count($parts) === 1) {
-            throw new \RuntimeException('$field must contain both the class and field name, i.e. Foo.bar');
+            throw new InvalidArgumentException('$key must contain both the class and field name, i.e. Foo.bar');
         }
 
         return $parts;

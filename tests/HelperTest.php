@@ -28,7 +28,8 @@ final class HelperTest extends TestCase
 
     public function testThrowsExceptionWithInvalidField()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('$key must contain both the class and field name, i.e. Foo.bar');
 
         setting('Foobar');
     }

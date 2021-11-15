@@ -3,6 +3,7 @@
 namespace Sparks\Settings\Handlers;
 
 use CodeIgniter\I18n\Time;
+use RuntimeException;
 
 /**
  * Provides database storage for Settings.
@@ -35,6 +36,20 @@ class DatabaseHandler extends BaseHandler
     private $table;
 
     /**
+     * Checks whether this handler has a value set.
+     */
+    public function has(string $class, string $property, ?string $context = null): bool
+    {
+        $this->hydrate();
+
+        if (! isset($this->settings[$class][$property])) {
+            return false;
+        }
+
+        return array_key_exists($context ?? 0, $this->settings[$class][$property]);
+    }
+
+    /**
      * Attempt to retrieve a value from the database.
      * To boost performance, all of the values are
      * read and stored in $this->settings the first
@@ -42,15 +57,13 @@ class DatabaseHandler extends BaseHandler
      *
      * @return mixed|null
      */
-    public function get(string $class, string $property)
+    public function get(string $class, string $property, ?string $context = null)
     {
-        $this->hydrate();
-
-        if (! isset($this->settings[$class]) || ! isset($this->settings[$class][$property])) {
+        if (! $this->has($class, $property, $context)) {
             return null;
         }
 
-        return $this->parseValue(...$this->settings[$class][$property]);
+        return $this->parseValue(...$this->settings[$class][$property][$context ?? 0]);
     }
 
     /**
@@ -60,7 +73,7 @@ class DatabaseHandler extends BaseHandler
      *
      * @return mixed|void
      */
-    public function set(string $class, string $property, $value = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null)
     {
         $this->hydrate();
         $time  = Time::now()->format('Y-m-d H:i:s');
@@ -68,13 +81,14 @@ class DatabaseHandler extends BaseHandler
         $value = $this->prepareValue($value);
 
         // If we found it in our cache, then we need to update
-        if (isset($this->settings[$class][$property])) {
+        if (isset($this->settings[$class][$property][$context ?? 0])) {
             $result = db_connect()->table($this->table)
                 ->where('class', $class)
                 ->where('key', $property)
                 ->update([
                     'value'      => $value,
                     'type'       => $type,
+                    'context'    => $context,
                     'updated_at' => $time,
                 ]);
         } else {
@@ -84,6 +98,7 @@ class DatabaseHandler extends BaseHandler
                     'key'        => $property,
                     'value'      => $value,
                     'type'       => $type,
+                    'context'    => $context,
                     'created_at' => $time,
                     'updated_at' => $time,
                 ]);
@@ -94,8 +109,11 @@ class DatabaseHandler extends BaseHandler
             if (! array_key_exists($class, $this->settings)) {
                 $this->settings[$class] = [];
             }
+            if (! array_key_exists($property, $this->settings[$class])) {
+                $this->settings[$class][$property] = [];
+            }
 
-            $this->settings[$class][$property] = [
+            $this->settings[$class][$property][$context ?? 0] = [
                 $value,
                 $type,
             ];
@@ -108,7 +126,7 @@ class DatabaseHandler extends BaseHandler
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
      */
-    public function forget(string $class, string $property)
+    public function forget(string $class, string $property, ?string $context = null)
     {
         $this->hydrate();
 
@@ -116,6 +134,7 @@ class DatabaseHandler extends BaseHandler
         $result = db_connect()->table($this->table)
             ->where('class', $class)
             ->where('key', $property)
+            ->where('context', $context)
             ->delete();
 
         if (! $result) {
@@ -123,13 +142,15 @@ class DatabaseHandler extends BaseHandler
         }
 
         // Delete from local storage
-        unset($this->settings[$class][$property]);
+        unset($this->settings[$class][$property][$context ?? 0]);
 
         return $result;
     }
 
     /**
      * Ensures we've pulled all of the values from the database.
+     *
+     * @throws RuntimeException
      */
     private function hydrate()
     {
@@ -142,7 +163,7 @@ class DatabaseHandler extends BaseHandler
         $rawValues = db_connect()->table($this->table)->get();
 
         if (is_bool($rawValues)) {
-            throw new \RuntimeException(db_connect()->error()['message'] ?? 'Error reading from database.');
+            throw new RuntimeException(db_connect()->error()['message'] ?? 'Error reading from database.');
         }
 
         $rawValues = $rawValues->getResultObject();
@@ -151,8 +172,11 @@ class DatabaseHandler extends BaseHandler
             if (! array_key_exists($row->class, $this->settings)) {
                 $this->settings[$row->class] = [];
             }
+            if (! array_key_exists($row->key, $this->settings[$row->class])) {
+                $this->settings[$row->class][$row->key] = [];
+            }
 
-            $this->settings[$row->class][$row->key] = [
+            $this->settings[$row->class][$row->key][$row->context ?? 0] = [
                 $row->value,
                 $row->type,
             ];

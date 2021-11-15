@@ -80,6 +80,34 @@ it effectively resets itself back to the default value in config file, if any.
 service('setting')->forget('App.siteName')
 ```
 
+### Contextual Settings
+
+In addition to the default behavior describe above, `Settings` can can be used to define "contextual settings".
+A context may be anything you want, but common examples are a runtime environment or an authenticated user.
+In order to use a context you pass it as an additional parameter to the `get()`/`set()`/`forget()` methods; if
+a context setting is requested and does not exist then the default global value will be used.
+
+Contexts may be any unique string you choose, but a recommended format for supplying some consistency is to
+given them a category and identifier, like `environment:production` or `group:42`.
+
+An example... Say your App config includes the name of a theme to use to enhance your display. By default
+your config file specifies `App.theme = 'default'`. When a user changes their theme, you do not want this to
+change the theme for all visitors to the site, so you need to provide the user as the *context* for the change:
+
+```php
+	$context = 'user:' . user_id();
+	service('setting')->set('App.theme', 'dark', $context);
+```
+
+Now when your filter is determining which theme to apply it can check for the current user as the context:
+
+```php
+	$context = 'user:' . user_id();
+	$theme = service('setting')->get('App.theme', $context);
+```
+
+If that context is not found the library falls back to the global value, i.e. `service('setting')->get('App.theme')`
+
 ### Using the Helper
 
 The helper provides a shortcut to the using the service. It must first be loaded using the `helper()` method
@@ -99,6 +127,8 @@ setting()->set('App.siteName', 'My Great Site');
 // Forgetting a value
 setting()->forget('App.siteName');
 ```
+
+> Note: Due to the shorthand nature of the helper function it cannot access contextual settings.
 
 ## Known Limitations
 
