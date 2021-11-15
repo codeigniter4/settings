@@ -109,7 +109,9 @@ $theme = service('setting')->get('App.theme', $context);
 setting()->get('App.theme', $context);
 ```
 
-If that context is not found the library falls back to the general value, i.e. `service('setting')->get('App.theme')`
+Contexts are a cascading check, so if a context does not match a value it will fall back on general,
+i.e. `service('setting')->get('App.theme')`. Return value priority is as follows:
+"Setting with a context > Setting without context > Config value > null".
 
 ### Using the Helper
 
