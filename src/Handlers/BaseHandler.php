@@ -1,6 +1,6 @@
 <?php
 
-namespace Sparks\Settings\Handlers;
+namespace CodeIgniter\Settings\Handlers;
 
 use RuntimeException;
 

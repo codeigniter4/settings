@@ -1,10 +1,10 @@
 <?php
 
-namespace Sparks\Settings;
+namespace CodeIgniter\Settings;
 
+use CodeIgniter\Settings\Config\Settings as SettingsConfig;
 use InvalidArgumentException;
 use RuntimeException;
-use Sparks\Settings\Config\Settings as SettingsConfig;
 
 /**
  * Allows developers a single location to store and
