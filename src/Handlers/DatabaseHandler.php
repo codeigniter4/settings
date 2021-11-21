@@ -99,6 +99,7 @@ class DatabaseHandler extends BaseHandler
             $result = db_connect()->table($this->table)
                 ->where('class', $class)
                 ->where('key', $property)
+                ->where('context', $context)
                 ->update([
                     'value'      => $value,
                     'type'       => $type,
