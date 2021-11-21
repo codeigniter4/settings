@@ -6,10 +6,10 @@ use CodeIgniter\I18n\Time;
 use RuntimeException;
 
 /**
- * Provides database storage for Settings.
- * Uses local storage to minimize database calls.
+ * Provides database persistence for Settings.
+ * Uses ArrayHandler for storage to minimize database calls.
  */
-class DatabaseHandler extends BaseHandler
+class DatabaseHandler extends ArrayHandler
 {
     /**
      * The database table to use.
@@ -19,20 +19,11 @@ class DatabaseHandler extends BaseHandler
     private $table;
 
     /**
-     * Storage for cached general settings.
-     * Format: ['class' => ['property' => ['value', 'type']]]
+     * Array of contexts that have been stored.
      *
-     * @var array<string,array<string,array>>|null Will be null until hydrated
+     * @var ?string[]
      */
-    private $general;
-
-    /**
-     * Storage for cached context settings.
-     * Format: ['context' => ['class' => ['property' => ['value', 'type']]]]
-     *
-     * @var array<string,array|null>
-     */
-    private $contexts = [];
+    private $hydrated = [];
 
     /**
      * Stores the configured database table.
@@ -49,15 +40,7 @@ class DatabaseHandler extends BaseHandler
     {
         $this->hydrate($context);
 
-        if ($context === null) {
-            return isset($this->general[$class])
-                ? array_key_exists($property, $this->general[$class])
-                : false;
-        }
-
-        return isset($this->contexts[$context][$class])
-            ? array_key_exists($property, $this->contexts[$context][$class])
-            : false;
+        return $this->hasStored($class, $property, $context);
     }
 
     /**
@@ -70,13 +53,7 @@ class DatabaseHandler extends BaseHandler
      */
     public function get(string $class, string $property, ?string $context = null)
     {
-        if (! $this->has($class, $property, $context)) {
-            return null;
-        }
-
-        return $context === null
-            ? $this->parseValue(...$this->general[$class][$property])
-            : $this->parseValue(...$this->contexts[$context][$class][$property]);
+        return $this->getStored($class, $property, $context);
     }
 
     /**
@@ -90,9 +67,9 @@ class DatabaseHandler extends BaseHandler
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
-        $time  = Time::now()->format('Y-m-d H:i:s');
-        $type  = gettype($value);
-        $value = $this->prepareValue($value);
+        $time     = Time::now()->format('Y-m-d H:i:s');
+        $type     = gettype($value);
+        $prepared = $this->prepareValue($value);
 
         // If it was stored then we need to update
         if ($this->has($class, $property, $context)) {
@@ -101,7 +78,7 @@ class DatabaseHandler extends BaseHandler
                 ->where('key', $property)
                 ->where('context', $context)
                 ->update([
-                    'value'      => $value,
+                    'value'      => $prepared,
                     'type'       => $type,
                     'context'    => $context,
                     'updated_at' => $time,
@@ -112,7 +89,7 @@ class DatabaseHandler extends BaseHandler
                 ->insert([
                     'class'      => $class,
                     'key'        => $property,
-                    'value'      => $value,
+                    'value'      => $prepared,
                     'type'       => $type,
                     'context'    => $context,
                     'created_at' => $time,
@@ -120,22 +97,12 @@ class DatabaseHandler extends BaseHandler
                 ]);
         }
 
-        // Update storage
-        if ($result === true) {
-            if ($context === null) {
-                $this->general[$class][$property] = [
-                    $value,
-                    $type,
-                ];
-            } else {
-                $this->contexts[$context][$class][$property] = [
-                    $value,
-                    $type,
-                ];
-            }
-        } else {
+        if ($result !== true) {
             throw new RuntimeException(db_connect()->error()['message'] ?? 'Error writing to the database.');
         }
+
+        // Update storage
+        $this->setStored($class, $property, $context, $value);
 
         return $result;
     }
@@ -160,47 +127,39 @@ class DatabaseHandler extends BaseHandler
         }
 
         // Delete from local storage
-        if ($context === null) {
-            unset($this->general[$class][$property]);
-        } else {
-            unset($this->contexts[$context][$class][$property]);
-        }
+        $this->forgetStored($class, $property, $context);
 
         return $result;
     }
 
     /**
      * Fetches values from the database in bulk to minimize calls.
-     * General is always fetched once, contexts are fetched in their
-     * entirety for each new request.
+     * General (null) is always fetched once, contexts are fetched
+     * in their entirety for each new request.
      *
      * @throws RuntimeException For database failures
      */
     private function hydrate(?string $context)
     {
+        // Check for completion
+        if (in_array($context, $this->hydrated, true)) {
+            return;
+        }
+
         if ($context === null) {
-            // Check for completion
-            if ($this->general !== null) {
-                return;
-            }
+            $this->hydrated[] = null;
 
-            $this->general = [];
-            $query         = db_connect()->table($this->table)->where('context', null);
+            $query = db_connect()->table($this->table)->where('context', null);
         } else {
-            // Check for completion
-            if (isset($this->contexts[$context])) {
-                return;
-            }
-
             $query = db_connect()->table($this->table)->where('context', $context);
 
             // If general has not been hydrated we will do that at the same time
-            if ($this->general === null) {
-                $this->general = [];
+            if (! in_array(null, $this->hydrated, true)) {
+                $this->hydrated[] = null;
                 $query->orWhere('context', null);
             }
 
-            $this->contexts[$context] = [];
+            $this->hydrated[] = $context;
         }
 
         if (is_bool($result = $query->get())) {
@@ -208,16 +167,7 @@ class DatabaseHandler extends BaseHandler
         }
 
         foreach ($result->getResultObject() as $row) {
-            $tuple = [
-                $row->value,
-                $row->type,
-            ];
-
-            if ($row->context === null) {
-                $this->general[$row->class][$row->key] = $tuple;
-            } else {
-                $this->contexts[$row->context][$row->class][$row->key] = $tuple;
-            }
+            $this->setStored($row->class, $row->key, $row->context, $this->parseValue($row->value, $row->type));
         }
     }
 }
