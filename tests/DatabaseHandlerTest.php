@@ -38,9 +38,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsNewRows()
     {
-        $results = $this->settings->set('Test.siteName', 'Foo');
+        $this->settings->set('Test.siteName', 'Foo');
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -51,9 +50,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsBoolTrue()
     {
-        $results = $this->settings->set('Test.siteName', true);
+        $this->settings->set('Test.siteName', true);
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -66,9 +64,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsBoolFalse()
     {
-        $results = $this->settings->set('Test.siteName', false);
+        $this->settings->set('Test.siteName', false);
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -81,9 +78,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsNull()
     {
-        $results = $this->settings->set('Test.siteName', null);
+        $this->settings->set('Test.siteName', null);
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -96,10 +92,9 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsArray()
     {
-        $data    = ['foo' => 'bar'];
-        $results = $this->settings->set('Test.siteName', $data);
+        $data = ['foo' => 'bar'];
+        $this->settings->set('Test.siteName', $data);
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -112,10 +107,9 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetInsertsObject()
     {
-        $data    = (object) ['foo' => 'bar'];
-        $results = $this->settings->set('Test.siteName', $data);
+        $data = (object) ['foo' => 'bar'];
+        $this->settings->set('Test.siteName', $data);
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -136,9 +130,8 @@ final class DatabaseHandlerTest extends TestCase
             'updated_at' => Time::now()->toDateTimeString(),
         ]);
 
-        $results = $this->settings->set('Test.siteName', 'Bar');
+        $this->settings->set('Test.siteName', 'Bar');
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -148,9 +141,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testWorksWithoutConfigClass()
     {
-        $results = $this->settings->set('Nada.siteName', 'Bar');
+        $this->settings->set('Nada.siteName', 'Bar');
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class' => 'Nada',
             'key'   => 'siteName',
@@ -170,9 +162,8 @@ final class DatabaseHandlerTest extends TestCase
             'updated_at' => Time::now()->toDateTimeString(),
         ]);
 
-        $results = $this->settings->forget('Test.siteName');
+        $this->settings->forget('Test.siteName');
 
-        $this->assertTrue($results);
         $this->dontSeeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Test',
             'key'   => 'siteName',
@@ -181,16 +172,18 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testForgetWithNoStoredRecord()
     {
-        $results = $this->settings->forget('Test.siteName');
+        $this->settings->forget('Test.siteName');
 
-        $this->assertTrue($results);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+        ]);
     }
 
     public function testSetWithContext()
     {
-        $results = $this->settings->set('Test.siteName', 'Banana', 'environment:test');
+        $this->settings->set('Test.siteName', 'Banana', 'environment:test');
 
-        $this->assertTrue($results);
         $this->seeInDatabase($this->table, [
             'class'   => 'Tests\Support\Config\Test',
             'key'     => 'siteName',
