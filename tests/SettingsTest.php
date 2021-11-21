@@ -258,4 +258,40 @@ final class SettingsTest extends TestCase
 
         $this->assertSame('Bar', $settings->get('Test.siteName', 'category:disease'));
     }
+
+    /**
+     * @see https://github.com/codeigniter4/settings/issues/20
+     */
+    public function testSetUpdatesContextOnly()
+    {
+        $settings = new Settings(config('Settings'));
+
+        $settings->set('Test.siteName', 'Humpty');
+        $settings->set('Test.siteName', 'Jack', 'context:male');
+        $settings->set('Test.siteName', 'Jill', 'context:female');
+        $settings->set('Test.siteName', 'Jane', 'context:female');
+
+        $this->seeInDatabase($this->table, [
+            'class'   => 'Tests\Support\Config\Test',
+            'key'     => 'siteName',
+            'value'   => 'Jane',
+            'type'    => 'string',
+            'context' => 'context:female',
+        ]);
+
+        $this->seeInDatabase($this->table, [
+            'class'   => 'Tests\Support\Config\Test',
+            'key'     => 'siteName',
+            'value'   => 'Humpty',
+            'type'    => 'string',
+            'context' => null,
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class'   => 'Tests\Support\Config\Test',
+            'key'     => 'siteName',
+            'value'   => 'Jack',
+            'type'    => 'string',
+            'context' => 'context:male',
+        ]);
+    }
 }
