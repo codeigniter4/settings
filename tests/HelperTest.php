@@ -2,7 +2,6 @@
 
 namespace CodeIgniter4\Tests;
 
-use CodeIgniter\I18n\Time;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
 use Tests\Support\TestCase;
@@ -38,50 +37,24 @@ final class HelperTest extends TestCase
     {
         setting('Foo.bam', null);
 
-        $this->seeInDatabase($this->table, [
-            'class' => 'Foo',
-            'key'   => 'bam',
-            'value' => null,
-            'type'  => 'NULL',
-        ]);
-
+        $this->assertNull(service('settings')->get('Foo.bam'));
         $this->assertNull(setting('Foo.bam'));
     }
 
     public function testReturnsValueDotArray()
     {
-        $this->hasInDatabase($this->table, [
-            'class'      => 'Foo',
-            'key'        => 'bar',
-            'value'      => 'baz',
-            'type'       => 'string',
-            'created_at' => Time::now()->toDateTimeString(),
-            'updated_at' => Time::now()->toDateTimeString(),
-        ]);
+        service('settings')->set('Foo.bar', 'baz');
 
         $this->assertSame('baz', setting('Foo.bar'));
     }
 
     public function testSettingValueDotArray()
     {
-        $this->hasInDatabase($this->table, [
-            'class'      => 'Foo',
-            'key'        => 'bar',
-            'value'      => 'baz',
-            'type'       => 'string',
-            'created_at' => Time::now()->toDateTimeString(),
-            'updated_at' => Time::now()->toDateTimeString(),
-        ]);
+        service('settings')->set('Foo.bar', 'baz');
 
         setting('Foo.bar', false);
 
-        $this->seeInDatabase($this->table, [
-            'class' => 'Foo',
-            'key'   => 'bar',
-            'value' => '0',
-            'type'  => 'boolean',
-        ]);
-
+        $this->assertFalse(service('settings')->get('Foo.bar'));
         $this->assertFalse(setting('Foo.bar'));
     }
 }
