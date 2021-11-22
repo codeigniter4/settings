@@ -102,7 +102,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         // Update storage
-        $this->setStored($class, $property, $context, $value);
+        $this->setStored($class, $property, $value, $context);
 
         return $result;
     }
@@ -167,7 +167,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         foreach ($result->getResultObject() as $row) {
-            $this->setStored($row->class, $row->key, $row->context, $this->parseValue($row->value, $row->type));
+            $this->setStored($row->class, $row->key, $this->parseValue($row->value, $row->type), $row->context);
         }
     }
 }

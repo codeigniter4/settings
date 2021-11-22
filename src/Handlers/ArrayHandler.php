@@ -84,7 +84,7 @@ class ArrayHandler extends BaseHandler
      *
      * @param mixed $value
      */
-    protected function setStored(string $class, string $property, ?string $context, $value): void
+    protected function setStored(string $class, string $property, $value, ?string $context): void
     {
         $type  = gettype($value);
         $value = $this->prepareValue($value);

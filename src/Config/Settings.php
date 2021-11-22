@@ -2,6 +2,7 @@
 
 namespace CodeIgniter\Settings\Config;
 
+use CodeIgniter\Settings\Handlers\ArrayHandler;
 use CodeIgniter\Settings\Handlers\DatabaseHandler;
 
 class Settings
@@ -14,6 +15,14 @@ class Settings
      * @var string[]
      */
     public $handlers = ['database'];
+
+    /**
+     * Array handler settings.
+     */
+    public $array = [
+        'class'     => ArrayHandler::class,
+        'writeable' => true,
+    ];
 
     /**
      * Database handler settings.
