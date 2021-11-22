@@ -3,6 +3,7 @@
 namespace CodeIgniter\Settings;
 
 use CodeIgniter\Settings\Config\Settings as SettingsConfig;
+use CodeIgniter\Settings\Handlers\BaseHandler;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -14,19 +15,18 @@ use RuntimeException;
 class Settings
 {
     /**
-     * An array of Setting Stores that handle
-     * the actual act of getting/setting the values.
+     * An array of handlers for getting/setting the values.
      *
-     * @var array
+     * @var BaseHandler[]
      */
     private $handlers = [];
 
     /**
-     * The name of the handler that handles writes.
+     * An array of the config options for each handler.
      *
-     * @var string
+     * @var array<string,array<string,mixed>>
      */
-    private $writeHandler;
+    private $options;
 
     /**
      * Grabs instances of our handlers.
@@ -41,12 +41,7 @@ class Settings
             }
 
             $this->handlers[$handler] = new $class();
-
-            $writeable = $config->{$handler}['writeable'] ?? null;
-
-            if ($writeable) {
-                $this->writeHandler = $handler;
-            }
+            $this->options[$handler]  = $config->{$handler};
         }
     }
 
@@ -79,25 +74,31 @@ class Settings
      *
      * @param mixed $value
      *
-     * @return void|null
+     * @return void
      */
     public function set(string $key, $value = null, ?string $context = null)
     {
         [$class, $property] = $this->prepareClassAndProperty($key);
 
-        return $this->getWriteHandler()->set($class, $property, $value, $context);
+        foreach ($this->getWriteHandlers() as $handler) {
+            $handler->set($class, $property, $value, $context);
+        }
     }
 
     /**
      * Removes a setting from the persistent storage,
      * effectively returning the value to the default value
      * found in the config file, if any.
+     *
+     * @return void
      */
     public function forget(string $key, ?string $context = null)
     {
         [$class, $property] = $this->prepareClassAndProperty($key);
 
-        return $this->getWriteHandler()->forget($class, $property, $context);
+        foreach ($this->getWriteHandlers() as $handler) {
+            $handler->forget($class, $property, $context);
+        }
     }
 
     /**
@@ -105,15 +106,23 @@ class Settings
      *
      * @throws RuntimeException
      *
-     * @return mixed
+     * @return BaseHandler[]
      */
-    private function getWriteHandler()
+    private function getWriteHandlers()
     {
-        if (empty($this->writeHandler) || ! isset($this->handlers[$this->writeHandler])) {
+        $handlers = [];
+
+        foreach ($this->options as $handler => $options) {
+            if (! empty($options['writeable'])) {
+                $handlers[] = $this->handlers[$handler];
+            }
+        }
+
+        if ($handlers === []) {
             throw new RuntimeException('Unable to find a Settings handler that can store values.');
         }
 
-        return $this->handlers[$this->writeHandler];
+        return $handlers;
     }
 
     /**

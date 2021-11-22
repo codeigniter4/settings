@@ -22,12 +22,13 @@ abstract class BaseHandler
      * If the Handler supports saving values, it
      * MUST override this method to provide that functionality.
      * Not all Handlers will support writing values.
+     * Must throw RuntimeException for any failures.
      *
      * @param mixed $value
      *
      * @throws RuntimeException
      *
-     * @return mixed
+     * @return void
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
@@ -38,10 +39,11 @@ abstract class BaseHandler
      * If the Handler supports forgetting values, it
      * MUST override this method to provide that functionality.
      * Not all Handlers will support writing values.
+     * Must throw RuntimeException for any failures.
      *
      * @throws RuntimeException
      *
-     * @return mixed
+     * @return void
      */
     public function forget(string $class, string $property, ?string $context = null)
     {

@@ -63,7 +63,7 @@ class DatabaseHandler extends ArrayHandler
      *
      * @throws RuntimeException For database failures
      *
-     * @return mixed|void
+     * @return void
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
@@ -103,13 +103,13 @@ class DatabaseHandler extends ArrayHandler
 
         // Update storage
         $this->setStored($class, $property, $value, $context);
-
-        return $result;
     }
 
     /**
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
+     *
+     * @return void
      */
     public function forget(string $class, string $property, ?string $context = null)
     {
@@ -123,13 +123,11 @@ class DatabaseHandler extends ArrayHandler
             ->delete();
 
         if (! $result) {
-            return $result;
+            throw new RuntimeException(db_connect()->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
-
-        return $result;
     }
 
     /**
@@ -139,7 +137,7 @@ class DatabaseHandler extends ArrayHandler
      *
      * @throws RuntimeException For database failures
      */
-    private function hydrate(?string $context)
+    private function hydrate(?string $context): void
     {
         // Check for completion
         if (in_array($context, $this->hydrated, true)) {
