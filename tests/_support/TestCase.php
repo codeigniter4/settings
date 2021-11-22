@@ -2,26 +2,33 @@
 
 namespace Tests\Support;
 
+use CodeIgniter\Settings\Handlers\ArrayHandler;
+use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\CIUnitTestCase;
+use Config\Services;
 use Nexus\PHPUnit\Extension\Expeditable;
 
 abstract class TestCase extends CIUnitTestCase
 {
     use Expeditable;
 
-    protected $namespace = 'CodeIgniter\Settings';
-    protected $refresh   = true;
+    /**
+     * @var Settings
+     */
+    protected $settings;
 
     /**
-     * @var string
+     * Sets up the ArrayHandler for faster & easier tests.
      */
-    protected $table;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->table = config('Settings')->database['table'];
+        $config           = config('Settings');
+        $config->handlers = ['array'];
+        $this->settings   = new Settings($config);
+
+        Services::injectMock('settings', $this->settings);
     }
 
     protected function tearDown(): void
