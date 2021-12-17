@@ -70,14 +70,14 @@ will be converted back into a boolean when retrieved. Arrays and objects are ser
 when retrieved. 
 
 ```php
-service('setting')->set('App.siteName', 'My Great Site');
+service('settings')->set('App.siteName', 'My Great Site');
 ```
 
 You can delete a value from the persistent storage with the `forget()` method. Since it is removed from the storage,
 it effectively resets itself back to the default value in config file, if any.
 
 ```php
-service('setting')->forget('App.siteName')
+service('settings')->forget('App.siteName')
 ```
 
 ### Contextual Settings
@@ -96,14 +96,14 @@ change the theme for all visitors to the site, so you need to provide the user a
 
 ```php
 $context = 'user:' . user_id();
-service('setting')->set('App.theme', 'dark', $context);
+service('settings')->set('App.theme', 'dark', $context);
 ```
 
 Now when your filter is determining which theme to apply it can check for the current user as the context:
 
 ```php
 $context = 'user:' . user_id();
-$theme = service('setting')->get('App.theme', $context);
+$theme = service('settings')->get('App.theme', $context);
 
 // or using the helper
 setting()->get('App.theme', $context);
