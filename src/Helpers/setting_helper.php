@@ -22,6 +22,6 @@ if (! function_exists('setting')) {
         }
 
         // Setting the value
-        return $setting->set($key, $value);
+        $setting->set($key, $value);
     }
 }
