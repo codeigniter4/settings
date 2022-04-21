@@ -30,7 +30,7 @@ class Services extends BaseService
             return static::getSharedInstance('settings', $config);
         }
 
-        $config = $config ?? config('Settings');
+        $config ??= config('Settings');
 
         return new Settings($config);
     }
