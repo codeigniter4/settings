@@ -5,23 +5,25 @@ name: Unused
 on:
   pull_request:
     branches:
-      - 'develop'
+      - develop
     paths:
-      - 'src/**'
-      - 'tests/**'
+      - '**.php'
+      - 'composer.*'
       - '.github/workflows/unused.yml'
   push:
     branches:
-      - 'develop'
+      - develop
     paths:
-      - 'src/**'
-      - 'tests/**'
+      - '**.php'
+      - 'composer.*'
       - '.github/workflows/unused.yml'
 
 jobs:
   build:
     name: Unused Package Detection
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,6 +34,7 @@ jobs:
           php-version: '8.0'
           tools: composer, composer-unused
           extensions: intl, json, mbstring, xml
+          coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,21 +43,19 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install dependencies (limited)
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name }}
-        run: composer update --no-progress --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Install dependencies (authenticated)
-        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
-        run: composer update --no-progress --no-interaction --prefer-dist --optimize-autoloader
-        env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+      - name: Install dependencies
+        run: |
+          if [ -f composer.lock ]; then
+          composer install --no-progress --no-interaction --prefer-dist --optimize-autoloader
+          else
+          composer update --no-progress --no-interaction --prefer-dist --optimize-autoloader
+          fi
 
       - name: Detect unused packages
-        run: composer-unused -vvv --profile --ansi --no-interaction --no-progress --excludePackage=php
+        run: composer-unused -vvv --output-format=github --ansi --no-interaction --no-progress
