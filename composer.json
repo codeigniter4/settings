@@ -1,14 +1,13 @@
 {
     "name": "codeigniter4/settings",
-    "type": "library",
     "description": "Settings library for CodeIgniter 4",
+    "license": "MIT",
+    "type": "library",
     "keywords": [
         "codeigniter",
         "codeigniter4",
         "settings"
     ],
-    "homepage": "https://github.com/codeigniter4/settings",
-    "license": "MIT",
     "authors": [
         {
             "name": "Lonnie Ezell",
@@ -16,21 +15,17 @@
             "role": "Developer"
         }
     ],
+    "homepage": "https://github.com/codeigniter4/settings",
     "require": {
         "php": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "codeigniter/coding-standard": "^1.1",
+        "codeigniter4/devkit": "^1.0",
         "codeigniter4/framework": "^4.2.3",
-        "fakerphp/faker": "^1.9",
-        "mockery/mockery": "^1.0",
-        "nexusphp/cs-config": "^3.1",
-        "nexusphp/tachycardia": "^1.0",
-        "php-coveralls/php-coveralls": "^2.4",
-        "phpstan/phpstan": "^1.0",
-        "phpunit/phpunit": "^9.0",
-        "squizlabs/php_codesniffer": "^3.3"
+        "rector/rector": "0.14"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "CodeIgniter\\Settings\\": "src"
@@ -45,13 +40,20 @@
             "Tests\\Support\\": "tests/_support"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
     "scripts": {
         "post-update-cmd": [
             "bash -c \"if [ -f admin/setup.sh ]; then bash admin/setup.sh; fi\""
         ],
-        "analyze": "phpstan analyze",
+        "analyze": [
+            "phpstan analyze",
+            "psalm",
+            "rector process --dry-run"
+        ],
         "sa": "@analyze",
         "ci": [
             "Composer\\Config::disableProcessTimeout",
