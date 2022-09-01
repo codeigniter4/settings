@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.1",
-        "codeigniter4/codeigniter4": "dev-develop",
+        "codeigniter4/framework": "^4.2.3",
         "fakerphp/faker": "^1.9",
         "mockery/mockery": "^1.0",
         "nexusphp/cs-config": "^3.1",
@@ -45,12 +45,6 @@
             "Tests\\Support\\": "tests/_support"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/codeigniter4/CodeIgniter4"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
