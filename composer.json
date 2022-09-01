@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.1",
-        "codeigniter4/codeigniter4": "dev-develop",
+        "codeigniter4/framework": "^4.2.3",
         "fakerphp/faker": "^1.9",
         "mockery/mockery": "^1.0",
         "nexusphp/cs-config": "^3.1",
@@ -45,12 +45,6 @@
             "Tests\\Support\\": "tests/_support"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/codeigniter4/CodeIgniter4"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
@@ -58,18 +52,21 @@
             "bash -c \"if [ -f admin/setup.sh ]; then bash admin/setup.sh; fi\""
         ],
         "analyze": "phpstan analyze",
+        "sa": "@analyze",
         "ci": [
             "Composer\\Config::disableProcessTimeout",
+            "@cs",
             "@deduplicate",
             "@analyze",
-            "@test",
             "@inspect",
-            "@style"
+            "@test"
         ],
+        "cs": "php-cs-fixer fix --ansi --verbose --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix --ansi --verbose --diff --using-cache=yes",
+        "style": "@cs-fix",
         "deduplicate": "phpcpd app/ src/",
         "inspect": "deptrac analyze --cache-file=build/deptrac.cache",
         "mutate": "infection --threads=2 --skip-initial-tests --coverage=build/phpunit",
-        "style": "php-cs-fixer fix --verbose --ansi --using-cache=no",
         "test": "phpunit"
     }
 }
