@@ -12,7 +12,7 @@ class AddContextColumn extends Migration
 
     public function __construct(?Forge $forge = null)
     {
-        $this->config  = $this->_getConfig();
+        $this->config  = config('Settings');
         $this->DBGroup = (isset($this->config->database['group']) && $this->config->database['group']) ? $this->config->database['group'] : null;
 
         parent::__construct($forge);
@@ -28,11 +28,6 @@ class AddContextColumn extends Migration
                 'after'      => 'type',
             ],
         ]);
-    }
-
-    private function _getConfig()
-    {
-        return config('Settings');
     }
 
     public function down()
