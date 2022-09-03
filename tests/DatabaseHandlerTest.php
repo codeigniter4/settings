@@ -23,6 +23,11 @@ final class DatabaseHandlerTest extends TestCase
     protected $table;
 
     /**
+     * @var string
+     */
+    protected $group;
+
+    /**
      * Ensures we are using the database handler.
      */
     protected function setUp(): void
@@ -34,7 +39,9 @@ final class DatabaseHandlerTest extends TestCase
 
         $this->settings = new Settings($config);
         $this->table    = $config->database['table'];
+        $this->group    = $config->database['group'];
     }
+    
 
     public function testSetInsertsNewRows()
     {
@@ -46,6 +53,37 @@ final class DatabaseHandlerTest extends TestCase
             'value' => 'Foo',
             'type'  => 'string',
         ]);
+    }
+
+    public function testInvalidGroup()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $config           = config('Settings');
+        $config->handlers = ['database'];
+        $config->database['group'] = 'another';
+
+        $this->settings = new Settings($config);
+
+        $this->settings->set('Test.siteName', true);
+    }
+
+    public function testSetDefaultGroup()
+    {
+        $config           = config('Settings');
+        $config->handlers = ['database'];
+        $config->database['group'] = 'default';
+
+        $this->settings->set('Test.siteName', true);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => '1',
+            'type'  => 'boolean',
+        ]);
+
+        $this->assertTrue($this->settings->get('Test.siteName'));
     }
 
     public function testSetInsertsBoolTrue()
