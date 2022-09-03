@@ -13,7 +13,7 @@ class AddContextColumn extends Migration
     public function __construct(?Forge $forge = null)
     {
         $this->config  = config('Settings');
-        $this->DBGroup = (isset($this->config->database['group']) && $this->config->database['group']) ? $this->config->database['group'] : null;
+        $this->DBGroup = $this->config->database['group'];
 
         parent::__construct($forge);
     }
