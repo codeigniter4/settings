@@ -5,6 +5,7 @@ namespace Tests;
 use CodeIgniter\I18n\Time;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
+use InvalidArgumentException;
 use Tests\Support\TestCase;
 
 /**
@@ -41,7 +42,6 @@ final class DatabaseHandlerTest extends TestCase
         $this->table    = $config->database['table'];
         $this->group    = $config->database['group'];
     }
-    
 
     public function testSetInsertsNewRows()
     {
@@ -57,10 +57,10 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testInvalidGroup()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
-        $config           = config('Settings');
-        $config->handlers = ['database'];
+        $config                    = config('Settings');
+        $config->handlers          = ['database'];
         $config->database['group'] = 'another';
 
         $this->settings = new Settings($config);
@@ -70,8 +70,8 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetDefaultGroup()
     {
-        $config           = config('Settings');
-        $config->handlers = ['database'];
+        $config                    = config('Settings');
+        $config->handlers          = ['database'];
         $config->database['group'] = 'default';
 
         $this->settings->set('Test.siteName', true);
