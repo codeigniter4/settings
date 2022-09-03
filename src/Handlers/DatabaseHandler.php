@@ -13,10 +13,8 @@ class DatabaseHandler extends ArrayHandler
 {
     /**
      * The database table to use.
-     *
-     * @var string
      */
-    private $table;
+    private string $table;
 
     /**
      * Array of contexts that have been stored.

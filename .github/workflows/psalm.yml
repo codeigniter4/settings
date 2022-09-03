@@ -1,4 +1,4 @@
-name: Unused
+name: Psalm
 
 on:
   pull_request:
@@ -7,18 +7,20 @@ on:
     paths:
       - '**.php'
       - 'composer.*'
-      - '.github/workflows/unused.yml'
+      - 'psalm*'
+      - '.github/workflows/psalm.yml'
   push:
     branches:
       - develop
     paths:
       - '**.php'
       - 'composer.*'
-      - '.github/workflows/unused.yml'
+      - 'psalm*'
+      - '.github/workflows/psalm.yml'
 
 jobs:
   build:
-    name: Unused Package Detection
+    name: Psalm Analysis
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[ci skip]')"
 
@@ -30,7 +32,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: composer, composer-unused
+          tools: phpstan, phpunit
           extensions: intl, json, mbstring, xml
           coverage: none
         env:
@@ -47,6 +49,16 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Create Psalm cache directory
+        run: mkdir -p build/psalm
+
+      - name: Cache Psalm results
+        uses: actions/cache@v3
+        with:
+          path: build/psalm
+          key: ${{ runner.os }}-psalm-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-psalm-
+
       - name: Install dependencies
         run: |
           if [ -f composer.lock ]; then
@@ -55,5 +67,5 @@ jobs:
             composer update --no-progress --no-interaction --prefer-dist --optimize-autoloader
           fi
 
-      - name: Detect unused packages
-        run: composer-unused -vvv --output-format=github --ansi --no-interaction --no-progress
+      - name: Run Psalm analysis
+        run: vendor/bin/psalm

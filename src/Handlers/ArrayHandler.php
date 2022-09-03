@@ -17,7 +17,7 @@ class ArrayHandler extends BaseHandler
      *
      * @var array<string,array<string,array>>
      */
-    private $general = [];
+    private array $general = [];
 
     /**
      * Storage for context settings.
@@ -25,7 +25,7 @@ class ArrayHandler extends BaseHandler
      *
      * @var array<string,array|null>
      */
-    private $contexts = [];
+    private array $contexts = [];
 
     public function has(string $class, string $property, ?string $context = null): bool
     {
@@ -53,14 +53,10 @@ class ArrayHandler extends BaseHandler
     protected function hasStored(string $class, string $property, ?string $context): bool
     {
         if ($context === null) {
-            return isset($this->general[$class])
-                ? array_key_exists($property, $this->general[$class])
-                : false;
+            return isset($this->general[$class]) && array_key_exists($property, $this->general[$class]);
         }
 
-        return isset($this->contexts[$context][$class])
-            ? array_key_exists($property, $this->contexts[$context][$class])
-            : false;
+        return isset($this->contexts[$context][$class]) && array_key_exists($property, $this->contexts[$context][$class]);
     }
 
     /**
