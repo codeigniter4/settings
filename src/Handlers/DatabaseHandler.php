@@ -2,6 +2,7 @@
 
 namespace CodeIgniter\Settings\Handlers;
 
+use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\I18n\Time;
 use RuntimeException;
 
@@ -12,18 +13,9 @@ use RuntimeException;
 class DatabaseHandler extends ArrayHandler
 {
     /**
-     * The database table to use.
-     *
-     * @var string
+     * The Query Builder for the Settings table.
      */
-    private $table;
-
-    /**
-     * The database group to use.
-     *
-     * @var string
-     */
-    private $group;
+    private BaseBuilder $builder;
 
     /**
      * Array of contexts that have been stored.
@@ -37,8 +29,7 @@ class DatabaseHandler extends ArrayHandler
      */
     public function __construct()
     {
-        $this->table = config('Settings')->database['table'] ?? 'settings';
-        $this->group = config('Settings')->database['group'] ?? null;
+        $this->builder = $builder ?? db_connect(config('Settings')->database['group'])->table(config('Settings')->database['table']);
     }
 
     /**
@@ -81,7 +72,7 @@ class DatabaseHandler extends ArrayHandler
 
         // If it was stored then we need to update
         if ($this->has($class, $property, $context)) {
-            $result = db_connect($this->group)->table($this->table)
+            $result = $this->builder
                 ->where('class', $class)
                 ->where('key', $property)
                 ->where('context', $context)
@@ -93,7 +84,7 @@ class DatabaseHandler extends ArrayHandler
                 ]);
         // ...otherwise insert it
         } else {
-            $result = db_connect($this->group)->table($this->table)
+            $result = $this->builder
                 ->insert([
                     'class'      => $class,
                     'key'        => $property,
@@ -106,7 +97,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if ($result !== true) {
-            throw new RuntimeException(db_connect($this->group)->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Update storage
@@ -124,14 +115,14 @@ class DatabaseHandler extends ArrayHandler
         $this->hydrate($context);
 
         // Delete from the database
-        $result = db_connect($this->group)->table($this->table)
+        $result = $this->builder
             ->where('class', $class)
             ->where('key', $property)
             ->where('context', $context)
             ->delete();
 
         if (! $result) {
-            throw new RuntimeException(db_connect($this->group)->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Delete from local storage
@@ -155,9 +146,9 @@ class DatabaseHandler extends ArrayHandler
         if ($context === null) {
             $this->hydrated[] = null;
 
-            $query = db_connect($this->group)->table($this->table)->where('context', null);
+            $query = $this->builder->where('context', null);
         } else {
-            $query = db_connect($this->group)->table($this->table)->where('context', $context);
+            $query = $this->builder->where('context', $context);
 
             // If general has not been hydrated we will do that at the same time
             if (! in_array(null, $this->hydrated, true)) {
@@ -169,7 +160,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if (is_bool($result = $query->get())) {
-            throw new RuntimeException(db_connect($this->group)->error()['message'] ?? 'Error reading from database.');
+            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error reading from database.');
         }
 
         foreach ($result->getResultObject() as $row) {
