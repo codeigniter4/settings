@@ -29,7 +29,7 @@ class DatabaseHandler extends ArrayHandler
      */
     public function __construct()
     {
-        $this->builder = $builder ?? db_connect(config('Settings')->database['group'])->table(config('Settings')->database['table']);
+        $this->builder = db_connect(config('Settings')->database['group'])->table(config('Settings')->database['table']);
     }
 
     /**
