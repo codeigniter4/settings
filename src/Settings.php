@@ -19,7 +19,7 @@ class Settings
      *
      * @var BaseHandler[]
      */
-    private $handlers = [];
+    private array $handlers = [];
 
     /**
      * An array of the config options for each handler.
@@ -55,7 +55,7 @@ class Settings
         [$class, $property, $config] = $this->prepareClassAndProperty($key);
 
         // Check each of our handlers
-        foreach ($this->handlers as $name => $handler) {
+        foreach ($this->handlers as $handler) {
             if ($handler->has($class, $property, $context)) {
                 return $handler->get($class, $property, $context);
             }
