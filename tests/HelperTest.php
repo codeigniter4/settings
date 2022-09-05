@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeIgniter4\Tests;
+namespace Tests;
 
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
