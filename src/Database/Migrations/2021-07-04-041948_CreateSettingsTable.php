@@ -4,12 +4,16 @@ namespace CodeIgniter\Settings\Database\Migrations;
 
 use CodeIgniter\Database\Forge;
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Settings\Config\Settings;
 
 class CreateSettingsTable extends Migration
 {
+    private Settings $config;
+
     public function __construct(?Forge $forge = null)
     {
-        $this->DBGroup = config('Settings')->database['group'] ?? null;
+        $this->config  = config('Settings');
+        $this->DBGroup = $this->config->database['group'] ?? null;
 
         parent::__construct($forge);
     }
@@ -44,11 +48,11 @@ class CreateSettingsTable extends Migration
                 'null' => false,
             ],
         ]);
-        $this->forge->createTable(config('Settings')->database['table'], true);
+        $this->forge->createTable($this->config->database['table'], true);
     }
 
     public function down()
     {
-        $this->forge->dropTable(config('Settings')->database['table']);
+        $this->forge->dropTable($this->config->database['table']);
     }
 }
