@@ -2,10 +2,11 @@
 
 namespace CodeIgniter\Settings\Config;
 
+use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Settings\Handlers\ArrayHandler;
 use CodeIgniter\Settings\Handlers\DatabaseHandler;
 
-class Settings
+class Settings extends BaseConfig
 {
     /**
      * The available handlers. The alias must
@@ -30,6 +31,7 @@ class Settings
     public $database = [
         'class'     => DatabaseHandler::class,
         'table'     => 'settings',
+        'group'     => null,
         'writeable' => true,
     ];
 }

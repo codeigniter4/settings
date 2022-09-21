@@ -2,10 +2,18 @@
 
 namespace CodeIgniter\Settings\Database\Migrations;
 
+use CodeIgniter\Database\Forge;
 use CodeIgniter\Database\Migration;
 
 class CreateSettingsTable extends Migration
 {
+    public function __construct(?Forge $forge = null)
+    {
+        $this->DBGroup = config('Settings')->database['group'] ?? null;
+
+        parent::__construct($forge);
+    }
+
     public function up()
     {
         $this->forge->addField('id');
