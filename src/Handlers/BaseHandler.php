@@ -26,9 +26,9 @@ abstract class BaseHandler
      *
      * @param mixed $value
      *
-     * @throws RuntimeException
-     *
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
@@ -41,9 +41,9 @@ abstract class BaseHandler
      * Not all Handlers will support writing values.
      * Must throw RuntimeException for any failures.
      *
-     * @throws RuntimeException
-     *
      * @return void
+     *
+     * @throws RuntimeException
      */
     public function forget(string $class, string $property, ?string $context = null)
     {
