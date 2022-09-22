@@ -3,7 +3,9 @@
 namespace CodeIgniter\Settings\Handlers;
 
 use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\I18n\Time;
+use CodeIgniter\Settings\Config\Settings;
 use RuntimeException;
 
 /**
@@ -12,6 +14,11 @@ use RuntimeException;
  */
 class DatabaseHandler extends ArrayHandler
 {
+    /**
+     * The DB connection for the Settings.
+     */
+    private BaseConnection $db;
+
     /**
      * The Query Builder for the Settings table.
      */
@@ -24,12 +31,16 @@ class DatabaseHandler extends ArrayHandler
      */
     private $hydrated = [];
 
+    private Settings $config;
+
     /**
      * Stores the configured database table.
      */
     public function __construct()
     {
-        $this->builder = db_connect(config('Settings')->database['group'])->table(config('Settings')->database['table']);
+        $this->config  = config('Settings');
+        $this->db      = db_connect($this->config->database['group']);
+        $this->builder = $this->db->table($this->config->database['table']);
     }
 
     /**
@@ -97,7 +108,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if ($result !== true) {
-            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Update storage
@@ -122,7 +133,7 @@ class DatabaseHandler extends ArrayHandler
             ->delete();
 
         if (! $result) {
-            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Delete from local storage
@@ -160,7 +171,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if (is_bool($result = $query->get())) {
-            throw new RuntimeException(db_connect(config('Settings')->database['group'])->error()['message'] ?? 'Error reading from database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error reading from database.');
         }
 
         foreach ($result->getResultObject() as $row) {

@@ -35,6 +35,7 @@ final class DatabaseHandlerTest extends TestCase
     {
         parent::setUp();
 
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
         $config           = config('Settings');
         $config->handlers = ['database'];
 
@@ -59,6 +60,7 @@ final class DatabaseHandlerTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
         $config                    = config('Settings');
         $config->handlers          = ['database'];
         $config->database['group'] = 'another';
@@ -70,6 +72,7 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetDefaultGroup()
     {
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
         $config                    = config('Settings');
         $config->handlers          = ['database'];
         $config->database['group'] = 'default';
