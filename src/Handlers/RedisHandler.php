@@ -2,8 +2,8 @@
 
 namespace CodeIgniter\Settings\Handlers;
 
-use Config\Cache;
 use CodeIgniter\I18n\Time;
+use Config\Cache;
 use RuntimeException;
 
 /**
@@ -26,8 +26,6 @@ class RedisHandler extends ArrayHandler
 
     /**
      * Array of contexts that have been stored.
-     *
-     * @var Cache
      */
     private Cache $config;
 
@@ -36,7 +34,7 @@ class RedisHandler extends ArrayHandler
      */
     public function __construct()
     {
-        $this->config = new Cache();
+        $this->config  = new Cache();
         $this->handler = new BaseRedisHandler($this->config);
         $this->handler->initialize();
     }
@@ -69,9 +67,9 @@ class RedisHandler extends ArrayHandler
      *
      * @param mixed $value
      *
-     * @throws RuntimeException For database failures
-     *
      * @return void
+     *
+     * @throws RuntimeException For database failures
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
@@ -127,9 +125,9 @@ class RedisHandler extends ArrayHandler
         if ($context === null) {
             $this->hydrated[] = null;
             $this->getHydrate('*--null');
-            //$query = $this->builder->where('context', null);
+        // $query = $this->builder->where('context', null);
         } else {
-            //$query = $this->builder->where('context', $context);
+            // $query = $this->builder->where('context', $context);
             $this->getHydrate('*--' . $context);
             // If general has not been hydrated we will do that at the same time
             if (! in_array(null, $this->hydrated, true)) {
@@ -144,30 +142,31 @@ class RedisHandler extends ArrayHandler
     /**
      * Prepare Cache keys
      */
-    private function prepareKey(string $class, string $property, ?string $context) :string
+    private function prepareKey(string $class, string $property, ?string $context): string
     {
         $replace = str_split($this->config->reservedCharacters, 1);
-        $context = str_replace($replace, "|", $context);
-        $class = str_replace($replace, "|", $class);
-        return ($context) ? $class.'.'.$property.'--'.$context : $class.'.'.$property.'--null';
+        $context = str_replace($replace, '|', $context);
+        $class   = str_replace($replace, '|', $class);
+
+        return ($context) ? $class . '.' . $property . '--' . $context : $class . '.' . $property . '--null';
     }
 
     private function getHydrate(string $pattern)
     {
-        $iterator    = null;
+        $iterator = null;
 
-        do {
+        while ($iterator !== 0) {
             // Scan for some keys
             $keys = $this->handler->getRedis()->scan($iterator, $pattern);
 
             // Redis may return empty results, so protect against that
             if ($keys !== false) {
                 foreach ($keys as $key) {
-                    list($class,$context) = explode('--', $key);
-                    $value = $this->handler->get($key);
+                    [$class, $context] = explode('--', $key);
+                    $value             = $this->handler->get($key);
                     $this->setStored($class, $context, $this->parseValue($value['value'], $value['type']), $context);
                 }
             }
-        } while ($iterator > 0);
+        }
     }
 }
