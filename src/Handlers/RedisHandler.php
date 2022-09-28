@@ -77,7 +77,14 @@ class RedisHandler extends ArrayHandler
         $type     = gettype($value);
         $prepared = $this->prepareValue($value);
 
-        $result = $this->handler->save($this->prepareKey($class, $property, $context), ['type' => $type, 'value' => $prepared]);
+        $result = $this->handler->save($this->prepareKey($class, $property, $context), [
+            'class'      => $class,
+            'key'        => $property,
+            'value'      => $prepared,
+            'type'       => $type,
+            'context'    => $context,
+            'updated_at' => $time
+        ]);
 
         if ($result !== true) {
             throw new RuntimeException('Error writing to the cache.');
