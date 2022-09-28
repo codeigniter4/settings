@@ -145,8 +145,10 @@ class RedisHandler extends ArrayHandler
     private function prepareKey(string $class, string $property, ?string $context): string
     {
         $replace = str_split($this->config->reservedCharacters, 1);
-        $context = str_replace($replace, '|', $context);
-        $class   = str_replace($replace, '|', $class);
+        if ($context) {
+            $context = str_replace($replace, '|', $context);
+        }
+        $class = str_replace($replace, '|', $class);
 
         return ($context) ? $class . '.' . $property . '--' . $context : $class . '.' . $property . '--null';
     }
