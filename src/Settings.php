@@ -104,9 +104,9 @@ class Settings
     /**
      * Returns the handler that is set to store values.
      *
-     * @throws RuntimeException
-     *
      * @return BaseHandler[]
+     *
+     * @throws RuntimeException
      */
     private function getWriteHandlers()
     {
@@ -128,9 +128,9 @@ class Settings
     /**
      * Analyzes the given key and breaks it into the class.field parts.
      *
-     * @throws InvalidArgumentException
-     *
      * @return string[]
+     *
+     * @throws InvalidArgumentException
      */
     private function parseDotSyntax(string $key): array
     {

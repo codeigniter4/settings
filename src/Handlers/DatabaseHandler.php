@@ -60,9 +60,9 @@ class DatabaseHandler extends ArrayHandler
      *
      * @param mixed $value
      *
-     * @throws RuntimeException For database failures
-     *
      * @return void
+     *
+     * @throws RuntimeException For database failures
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {

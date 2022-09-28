@@ -2,12 +2,10 @@
 
 namespace Tests;
 
-use CodeIgniter\I18n\Time;
+use CodeIgniter\Settings\Handlers\RedisHandler;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
-use InvalidArgumentException;
 use Tests\Support\TestCase;
-use CodeIgniter\Settings\Handlers\RedisHandler;
 
 /**
  * @internal
@@ -35,13 +33,13 @@ final class RedisHandlerTest extends TestCase
         $config->handlers = ['redis'];
 
         $this->settings = new Settings($config);
-        $this->handler = new RedisHandler();
+        $this->handler  = new RedisHandler();
     }
 
     public function testSetInsertsNewRows()
     {
         $this->settings->set('Test.siteName', 'Foo');
-        
+
         $this->assertSame('Foo', $this->settings->get('Test.siteName'));
     }
 

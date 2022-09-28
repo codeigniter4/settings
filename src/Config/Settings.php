@@ -23,7 +23,7 @@ class Settings extends BaseConfig
      */
     public $array = [
         'class'     => ArrayHandler::class,
-        'writeable' => true
+        'writeable' => true,
     ];
 
     /**
@@ -33,14 +33,14 @@ class Settings extends BaseConfig
         'class'     => DatabaseHandler::class,
         'table'     => 'settings',
         'group'     => null,
-        'writeable' => true
+        'writeable' => true,
     ];
 
     /**
      * Redis handler settings
      */
     public $redis = [
-        'class' => RedisHandler::class,
-        'writeable' => true
+        'class'     => RedisHandler::class,
+        'writeable' => true,
     ];
 }
