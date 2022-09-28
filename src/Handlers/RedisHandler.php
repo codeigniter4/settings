@@ -83,7 +83,7 @@ class RedisHandler extends ArrayHandler
             'value'      => $prepared,
             'type'       => $type,
             'context'    => $context,
-            'updated_at' => $time
+            'updated_at' => $time,
         ]);
 
         if ($result !== true) {

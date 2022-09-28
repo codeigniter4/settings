@@ -16,7 +16,6 @@ final class RedisHandlerTest extends TestCase
 
     protected $namespace = 'CodeIgniter\Settings';
     protected $refresh   = true;
-
     protected RedisHandler $handler;
 
     /**
