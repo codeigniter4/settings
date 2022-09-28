@@ -107,10 +107,6 @@ class RedisHandler extends ArrayHandler
         // Delete from the cache
         $result = $this->handler->delete($this->prepareKey($class, $property, $context));
 
-        if (! $result) {
-            throw new RuntimeException('Error deleting to the cache.');
-        }
-
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
     }
