@@ -20,7 +20,7 @@ class DatabaseHandler extends ArrayHandler
     /**
      * Array of contexts that have been stored.
      *
-     * @var ?string[]
+     * @var (string|null)[]
      */
     private $hydrated = [];
 
@@ -48,7 +48,7 @@ class DatabaseHandler extends ArrayHandler
      * read and stored the first call for each contexts
      * and then retrieved from storage.
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function get(string $class, string $property, ?string $context = null)
     {
@@ -59,6 +59,7 @@ class DatabaseHandler extends ArrayHandler
      * Stores values into the database for later retrieval.
      *
      * @param mixed $value
+     * @param (string|null) $context
      *
      * @return void
      *

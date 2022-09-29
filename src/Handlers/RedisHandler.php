@@ -13,25 +13,22 @@ use RuntimeException;
 class RedisHandler extends ArrayHandler
 {
     /**
-     * The Query Builder for the Settings table.
+     * The Redis Handler for the Settings table.
      */
     private BaseRedisHandler $handler;
 
     /**
      * Array of contexts that have been stored.
      *
-     * @var ?string[]
+     * @var (string|null)[]
      */
     private $hydrated = [];
 
     /**
-     * Array of contexts that have been stored.
+     * Cache Config class
      */
     private Cache $config;
 
-    /**
-     * Stores the configured database table.
-     */
     public function __construct()
     {
         $this->config  = new Cache();
@@ -66,6 +63,7 @@ class RedisHandler extends ArrayHandler
      * Stores values into the database for later retrieval.
      *
      * @param mixed $value
+     * @param (string|null) $context
      *
      * @return void
      *
@@ -97,10 +95,8 @@ class RedisHandler extends ArrayHandler
     /**
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
-     *
-     * @return void
      */
-    public function forget(string $class, string $property, ?string $context = null)
+    public function forget(string $class, string $property, ?string $context = null): void
     {
         $this->hydrate($context);
 
@@ -115,8 +111,6 @@ class RedisHandler extends ArrayHandler
      * Fetches values from the database in bulk to minimize calls.
      * General (null) is always fetched once, contexts are fetched
      * in their entirety for each new request.
-     *
-     * @throws RuntimeException For database failures
      */
     private function hydrate(?string $context): void
     {
@@ -128,9 +122,7 @@ class RedisHandler extends ArrayHandler
         if ($context === null) {
             $this->hydrated[] = null;
             $this->getHydrate('*--null');
-        // $query = $this->builder->where('context', null);
         } else {
-            // $query = $this->builder->where('context', $context);
             $this->getHydrate('*--' . $context);
             // If general has not been hydrated we will do that at the same time
             if (! in_array(null, $this->hydrated, true)) {
@@ -156,7 +148,10 @@ class RedisHandler extends ArrayHandler
         return ($context) ? $class . '.' . $property . '--' . $context : $class . '.' . $property . '--null';
     }
 
-    private function getHydrate(string $pattern)
+    /**
+     * Search keys with pattern in Redis database
+     */
+    private function getHydrate(string $pattern): void
     {
         $iterator = null;
 
