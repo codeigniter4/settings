@@ -22,7 +22,7 @@ class DatabaseHandler extends ArrayHandler
      *
      * @var (string|null)[]
      */
-    private $hydrated = [];
+    private array $hydrated = [];
 
     /**
      * Stores the configured database table.
@@ -59,7 +59,6 @@ class DatabaseHandler extends ArrayHandler
      * Stores values into the database for later retrieval.
      *
      * @param mixed $value
-     * @param (string|null) $context
      *
      * @return void
      *

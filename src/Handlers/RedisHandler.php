@@ -22,7 +22,7 @@ class RedisHandler extends ArrayHandler
      *
      * @var (string|null)[]
      */
-    private $hydrated = [];
+    private array $hydrated = [];
 
     /**
      * Cache Config class
@@ -63,7 +63,6 @@ class RedisHandler extends ArrayHandler
      * Stores values into the database for later retrieval.
      *
      * @param mixed $value
-     * @param (string|null) $context
      *
      * @return void
      *
