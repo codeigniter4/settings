@@ -26,7 +26,7 @@ class Settings
      *
      * @var array<string,array<string,mixed>>
      */
-    private $options;
+    private ?array $options = null;
 
     /**
      * Grabs instances of our handlers.
