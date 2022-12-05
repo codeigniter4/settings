@@ -1,5 +1,6 @@
 <?php
 
+use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Expression\InlineIfToExplicitIfRector;
 use Rector\CodeQuality\Rector\For_\ForToForeachRector;
@@ -29,7 +30,6 @@ use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php56\Rector\FunctionLike\AddDefaultValueForUndefinedVariableRector;
 use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
-use Rector\Php74\Rector\Property\TypedPropertyRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\PSR4\Rector\FileWithoutNamespace\NormalizeNamespaceByPSR4ComposerAutoloadRector;
 use Rector\Set\ValueObject\LevelSetList;
@@ -114,8 +114,8 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(SimplifyEmptyArrayCheckRector::class);
     $rectorConfig->rule(NormalizeNamespaceByPSR4ComposerAutoloadRector::class);
     $rectorConfig
-        ->ruleWithConfiguration(TypedPropertyRector::class, [
+        ->ruleWithConfiguration(TypedPropertyFromAssignsRector::class, [
             // Set to false if you use in libraries, or it does create breaking changes.
-            TypedPropertyRector::INLINE_PUBLIC => false,
+            TypedPropertyFromAssignsRector::INLINE_PUBLIC => false,
         ]);
 };
