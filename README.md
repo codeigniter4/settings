@@ -82,7 +82,7 @@ service('settings')->forget('App.siteName')
 
 ### Contextual Settings
 
-In addition to the default behavior describe above, `Settings` can can be used to define "contextual settings".
+In addition to the default behavior describe above, `Settings` can be used to define "contextual settings".
 A context may be anything you want, but common examples are a runtime environment or an authenticated user.
 In order to use a context you pass it as an additional parameter to the `get()`/`set()`/`forget()` methods; if
 a context setting is requested and does not exist then the general value will be used.
