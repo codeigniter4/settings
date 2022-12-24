@@ -12,9 +12,9 @@ config classes.
 
 1. Install with Composer:
 
-```console
-composer require codeigniter4/settings
-```
+    ```console
+    composer require codeigniter4/settings
+    ```
 
 2. Create a new migration and copy the provided class from below into it.
 
@@ -45,9 +45,17 @@ In order to store the settings in the database, you can run the provided migrati
 php spark migrate --all
 ```
 
-This will also migrate all other packages. If you don't want to do that you can copy the file
-from `vendor/codeigniter4/settings/src/Database/Migrations/2021-07-04-041948_CreateSettingsTable.php`
-into `app/Database/Migrations`, and migrate without the `--all` flag.
+This will also migrate all other packages. If you don't want to do that you can run migrate with the `-n` flag:
+
+1. **For Windows:**
+    ```console
+    php spark migrate -n CodeIgniter\Settings
+    ```
+
+2. **For Unix:**
+    ```console
+    php spark migrate -n CodeIgniter\\Settings
+    ```
 
 ## dot Notation
 
