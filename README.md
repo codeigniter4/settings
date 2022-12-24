@@ -10,7 +10,12 @@ config classes.
 
 ## Quick Start
 
-1. Install with Composer: `> composer require codeigniter4/settings`
+1. Install with Composer:
+
+```console
+composer require codeigniter4/settings
+```
+
 2. Create a new migration and copy the provided class from below into it.
 
 `Settings` provides a simple interface that you can use in place of calling `config()` to allow you to read and store
@@ -24,7 +29,10 @@ and still allows your users to override those settings once the site is live.
 
 Install easily via Composer to take advantage of CodeIgniter 4's autoloading capabilities
 and always be up-to-date:
-* `> composer require codeigniter4/settings`
+
+```console
+composer require codeigniter4/settings
+```
 
 Or, install manually by downloading the source files and adding the directory to
 `app/Config/Autoload.php`.
@@ -33,8 +41,8 @@ Or, install manually by downloading the source files and adding the directory to
 
 In order to store the settings in the database, you can run the provided migration: 
 
-```
-> php spark migrate --all
+```console
+php spark migrate --all
 ```
 
 This will also migrate all other packages. If you don't want to do that you can copy the file
@@ -77,7 +85,7 @@ You can delete a value from the persistent storage with the `forget()` method. S
 it effectively resets itself back to the default value in config file, if any.
 
 ```php
-service('settings')->forget('App.siteName')
+service('settings')->forget('App.siteName');
 ```
 
 ### Contextual Settings
@@ -88,7 +96,7 @@ In order to use a context you pass it as an additional parameter to the `get()`/
 a context setting is requested and does not exist then the general value will be used.
 
 Contexts may be any unique string you choose, but a recommended format for supplying some consistency is to
-give them a category and identifier, like `environment:production` or `group:42`.
+give them a category and identifier, like `environment:production`, `group:superadmin` or `lang:en`.
 
 An example... Say your App config includes the name of a theme to use to enhance your display. By default
 your config file specifies `App.theme = 'default'`. When a user changes their theme, you do not want this to
@@ -133,7 +141,7 @@ setting()->set('App.siteName', 'My Great Site');
 setting()->forget('App.siteName');
 ```
 
-> Note: Due to the shorthand nature of the helper function it cannot access contextual settings.
+> **Note** Due to the shorthand nature of the helper function it cannot access contextual settings.
 
 ## Known Limitations
 
