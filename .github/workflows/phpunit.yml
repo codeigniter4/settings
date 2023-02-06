@@ -39,7 +39,7 @@ jobs:
           extensions: intl, json, mbstring, gd, xdebug, xml, sqlite3
           coverage: xdebug
         env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get composer cache directory
         id: composer-cache
