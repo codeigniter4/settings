@@ -10,7 +10,12 @@ config classes.
 
 ## Quick Start
 
-1. Install with Composer: `> composer require codeigniter4/settings`
+1. Install with Composer:
+
+    ```console
+    composer require codeigniter4/settings
+    ```
+
 2. Create a new migration and copy the provided class from below into it.
 
 `Settings` provides a simple interface that you can use in place of calling `config()` to allow you to read and store
@@ -24,7 +29,10 @@ and still allows your users to override those settings once the site is live.
 
 Install easily via Composer to take advantage of CodeIgniter 4's autoloading capabilities
 and always be up-to-date:
-* `> composer require codeigniter4/settings`
+
+```console
+composer require codeigniter4/settings
+```
 
 Or, install manually by downloading the source files and adding the directory to
 `app/Config/Autoload.php`.
@@ -33,13 +41,21 @@ Or, install manually by downloading the source files and adding the directory to
 
 In order to store the settings in the database, you can run the provided migration: 
 
-```
-> php spark migrate --all
+```console
+php spark migrate --all
 ```
 
-This will also migrate all other packages. If you don't want to do that you can copy the file
-from `vendor/codeigniter4/settings/src/Database/Migrations/2021-07-04-041948_CreateSettingsTable.php`
-into `app/Database/Migrations`, and migrate without the `--all` flag.
+This will also migrate all other packages. If you don't want to do that you can run migrate with the `-n` flag:
+
+1. **For Windows:**
+    ```console
+    php spark migrate -n CodeIgniter\Settings
+    ```
+
+2. **For Unix:**
+    ```console
+    php spark migrate -n CodeIgniter\\Settings
+    ```
 
 ## dot Notation
 
@@ -70,25 +86,25 @@ will be converted back into a boolean when retrieved. Arrays and objects are ser
 when retrieved. 
 
 ```php
-service('setting')->set('App.siteName', 'My Great Site');
+service('settings')->set('App.siteName', 'My Great Site');
 ```
 
 You can delete a value from the persistent storage with the `forget()` method. Since it is removed from the storage,
 it effectively resets itself back to the default value in config file, if any.
 
 ```php
-service('setting')->forget('App.siteName')
+service('settings')->forget('App.siteName');
 ```
 
 ### Contextual Settings
 
-In addition to the default behavior describe above, `Settings` can can be used to define "contextual settings".
+In addition to the default behavior describe above, `Settings` can be used to define "contextual settings".
 A context may be anything you want, but common examples are a runtime environment or an authenticated user.
 In order to use a context you pass it as an additional parameter to the `get()`/`set()`/`forget()` methods; if
 a context setting is requested and does not exist then the general value will be used.
 
 Contexts may be any unique string you choose, but a recommended format for supplying some consistency is to
-give them a category and identifier, like `environment:production` or `group:42`.
+give them a category and identifier, like `environment:production`, `group:superadmin` or `lang:en`.
 
 An example... Say your App config includes the name of a theme to use to enhance your display. By default
 your config file specifies `App.theme = 'default'`. When a user changes their theme, you do not want this to
@@ -96,14 +112,14 @@ change the theme for all visitors to the site, so you need to provide the user a
 
 ```php
 $context = 'user:' . user_id();
-service('setting')->set('App.theme', 'dark', $context);
+service('settings')->set('App.theme', 'dark', $context);
 ```
 
 Now when your filter is determining which theme to apply it can check for the current user as the context:
 
 ```php
 $context = 'user:' . user_id();
-$theme = service('setting')->get('App.theme', $context);
+$theme = service('settings')->get('App.theme', $context);
 
 // or using the helper
 setting()->get('App.theme', $context);
@@ -133,7 +149,7 @@ setting()->set('App.siteName', 'My Great Site');
 setting()->forget('App.siteName');
 ```
 
-> Note: Due to the shorthand nature of the helper function it cannot access contextual settings.
+> **Note** Due to the shorthand nature of the helper function it cannot access contextual settings.
 
 ## Known Limitations
 

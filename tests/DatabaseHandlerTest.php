@@ -5,6 +5,7 @@ namespace Tests;
 use CodeIgniter\I18n\Time;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
+use InvalidArgumentException;
 use Tests\Support\TestCase;
 
 /**
@@ -23,17 +24,24 @@ final class DatabaseHandlerTest extends TestCase
     protected $table;
 
     /**
+     * @var string
+     */
+    protected $group;
+
+    /**
      * Ensures we are using the database handler.
      */
     protected function setUp(): void
     {
         parent::setUp();
 
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
         $config           = config('Settings');
         $config->handlers = ['database'];
 
         $this->settings = new Settings($config);
         $this->table    = $config->database['table'];
+        $this->group    = $config->database['group'];
     }
 
     public function testSetInsertsNewRows()
@@ -46,6 +54,39 @@ final class DatabaseHandlerTest extends TestCase
             'value' => 'Foo',
             'type'  => 'string',
         ]);
+    }
+
+    public function testInvalidGroup()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                    = config('Settings');
+        $config->handlers          = ['database'];
+        $config->database['group'] = 'another';
+
+        $this->settings = new Settings($config);
+
+        $this->settings->set('Test.siteName', true);
+    }
+
+    public function testSetDefaultGroup()
+    {
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                    = config('Settings');
+        $config->handlers          = ['database'];
+        $config->database['group'] = 'default';
+
+        $this->settings->set('Test.siteName', true);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+            'value' => '1',
+            'type'  => 'boolean',
+        ]);
+
+        $this->assertTrue($this->settings->get('Test.siteName'));
     }
 
     public function testSetInsertsBoolTrue()

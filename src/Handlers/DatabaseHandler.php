@@ -2,7 +2,10 @@
 
 namespace CodeIgniter\Settings\Handlers;
 
+use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\I18n\Time;
+use CodeIgniter\Settings\Config\Settings;
 use RuntimeException;
 
 /**
@@ -12,25 +15,32 @@ use RuntimeException;
 class DatabaseHandler extends ArrayHandler
 {
     /**
-     * The database table to use.
-     *
-     * @var string
+     * The DB connection for the Settings.
      */
-    private $table;
+    private BaseConnection $db;
+
+    /**
+     * The Query Builder for the Settings table.
+     */
+    private BaseBuilder $builder;
 
     /**
      * Array of contexts that have been stored.
      *
-     * @var ?string[]
+     * @var null[]|string[]
      */
     private $hydrated = [];
+
+    private Settings $config;
 
     /**
      * Stores the configured database table.
      */
     public function __construct()
     {
-        $this->table = config('Settings')->database['table'] ?? 'settings';
+        $this->config  = config('Settings');
+        $this->db      = db_connect($this->config->database['group']);
+        $this->builder = $this->db->table($this->config->database['table']);
     }
 
     /**
@@ -61,9 +71,9 @@ class DatabaseHandler extends ArrayHandler
      *
      * @param mixed $value
      *
-     * @throws RuntimeException For database failures
-     *
      * @return void
+     *
+     * @throws RuntimeException For database failures
      */
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
@@ -73,7 +83,7 @@ class DatabaseHandler extends ArrayHandler
 
         // If it was stored then we need to update
         if ($this->has($class, $property, $context)) {
-            $result = db_connect()->table($this->table)
+            $result = $this->builder
                 ->where('class', $class)
                 ->where('key', $property)
                 ->where('context', $context)
@@ -85,7 +95,7 @@ class DatabaseHandler extends ArrayHandler
                 ]);
         // ...otherwise insert it
         } else {
-            $result = db_connect()->table($this->table)
+            $result = $this->builder
                 ->insert([
                     'class'      => $class,
                     'key'        => $property,
@@ -98,7 +108,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if ($result !== true) {
-            throw new RuntimeException(db_connect()->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Update storage
@@ -116,14 +126,14 @@ class DatabaseHandler extends ArrayHandler
         $this->hydrate($context);
 
         // Delete from the database
-        $result = db_connect()->table($this->table)
+        $result = $this->builder
             ->where('class', $class)
             ->where('key', $property)
             ->where('context', $context)
             ->delete();
 
         if (! $result) {
-            throw new RuntimeException(db_connect()->error()['message'] ?? 'Error writing to the database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error writing to the database.');
         }
 
         // Delete from local storage
@@ -147,9 +157,9 @@ class DatabaseHandler extends ArrayHandler
         if ($context === null) {
             $this->hydrated[] = null;
 
-            $query = db_connect()->table($this->table)->where('context', null);
+            $query = $this->builder->where('context', null);
         } else {
-            $query = db_connect()->table($this->table)->where('context', $context);
+            $query = $this->builder->where('context', $context);
 
             // If general has not been hydrated we will do that at the same time
             if (! in_array(null, $this->hydrated, true)) {
@@ -161,7 +171,7 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if (is_bool($result = $query->get())) {
-            throw new RuntimeException(db_connect()->error()['message'] ?? 'Error reading from database.');
+            throw new RuntimeException($this->db->error()['message'] ?? 'Error reading from database.');
         }
 
         foreach ($result->getResultObject() as $row) {
