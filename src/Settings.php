@@ -19,14 +19,14 @@ class Settings
      *
      * @var BaseHandler[]
      */
-    private $handlers = [];
+    private array $handlers = [];
 
     /**
      * An array of the config options for each handler.
      *
      * @var array<string,array<string,mixed>>
      */
-    private $options;
+    private ?array $options = null;
 
     /**
      * Grabs instances of our handlers.
@@ -55,7 +55,7 @@ class Settings
         [$class, $property, $config] = $this->prepareClassAndProperty($key);
 
         // Check each of our handlers
-        foreach ($this->handlers as $name => $handler) {
+        foreach ($this->handlers as $handler) {
             if ($handler->has($class, $property, $context)) {
                 return $handler->get($class, $property, $context);
             }
@@ -104,9 +104,9 @@ class Settings
     /**
      * Returns the handler that is set to store values.
      *
-     * @throws RuntimeException
-     *
      * @return BaseHandler[]
+     *
+     * @throws RuntimeException
      */
     private function getWriteHandlers()
     {
@@ -128,9 +128,9 @@ class Settings
     /**
      * Analyzes the given key and breaks it into the class.field parts.
      *
-     * @throws InvalidArgumentException
-     *
      * @return string[]
+     *
+     * @throws InvalidArgumentException
      */
     private function parseDotSyntax(string $key): array
     {
