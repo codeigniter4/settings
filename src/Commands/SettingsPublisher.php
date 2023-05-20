@@ -67,16 +67,13 @@ class SettingsPublisher extends BaseCommand
         }
 
         // Use the Autoloader to figure out the module path
-        $source = service('autoloader')->getNamespace('CodeIgniter\\Settings')[0];
-
+        $source    = service('autoloader')->getNamespace('CodeIgniter\\Settings')[0];
         $publisher = new Publisher($source, APPPATH);
 
         try {
-            $publisher->addPath('Config//Settings.php')
+            $publisher->addPath('Config/Settings.php')
                 ->merge($this->overwrites);
-
         } catch (Throwable $e) {
-
             $this->showError($e);
         }
 
@@ -90,6 +87,5 @@ class SettingsPublisher extends BaseCommand
             file_put_contents($file, $contents);
             CLI::write(CLI::color('  Published! ', 'green') . "You can customize the configuration by editing the \"{$file}\" file.");
         }
-
     }
 }
