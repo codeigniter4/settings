@@ -49,6 +49,9 @@ final class SettingsPublisherTest extends CIUnitTestCase
         }
     }
 
+    /**
+     * @depends testPublishConfigFile
+     */
     public function testPublishConfigFileWithForce(): void
     {
 
