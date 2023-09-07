@@ -147,6 +147,7 @@ abstract class BaseHandler
                 } elseif (false === strpos($data, '"')) {
                     return false;
                 }
+
                 // Or else fall through.
                 // no break
             case 'a':
