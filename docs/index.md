@@ -1,6 +1,11 @@
 # CodeIgniter Settings Documentation
 
-This project provides database storage and retrieval of application settings, with a fallback to the config classes.
+This project provides a simple interface that you can use in place of calling `config()` to allow you to read and store
+config values in the database. If the value has not been updated and saved in the database then the original value
+from the config file will be used.
+
+This allows you to save your application's default state as values in config files, all stored in version control,
+and still allows your users to override those settings once the site is live.
 
 Set the value:
 
