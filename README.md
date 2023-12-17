@@ -10,6 +10,7 @@ config classes for CodeIgniter 4 framework.
 
 ![PHP](https://img.shields.io/badge/PHP-%5E7.4-blue)
 ![CodeIgniter](https://img.shields.io/badge/CodeIgniter-%5E4.2.3-blue)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## Installation
 
