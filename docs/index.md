@@ -7,6 +7,8 @@ from the config file will be used.
 This allows you to save your application's default state as values in config files, all stored in version control,
 and still allows your users to override those settings once the site is live.
 
+**How it works:**
+
 Set the value:
 
 ```php
