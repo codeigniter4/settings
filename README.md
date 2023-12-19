@@ -42,7 +42,7 @@ service('settings')->forget('App.siteName');
 
 ## Docs
 
-Read the full documentation: https://codeigniter4.github.io/settings/
+Read the full documentation: https://settings.codeigniter.com
 
 ## Contributing
 
