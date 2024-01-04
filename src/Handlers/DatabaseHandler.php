@@ -93,7 +93,7 @@ class DatabaseHandler extends ArrayHandler
                     'context'    => $context,
                     'updated_at' => $time,
                 ]);
-            // ...otherwise insert it
+        // ...otherwise insert it
         } else {
             $result = $this->builder
                 ->insert([
@@ -138,6 +138,19 @@ class DatabaseHandler extends ArrayHandler
 
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
+    }
+
+    /**
+     * Deletes all records from persistent storage, if found,
+     * and from the local cache.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->builder->truncate();
+
+        parent::flush();
     }
 
     /**

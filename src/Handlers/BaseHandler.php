@@ -51,6 +51,18 @@ abstract class BaseHandler
     }
 
     /**
+     * All handlers MUST support flushing all values.
+     *
+     * @return void
+     *
+     * @throws RuntimeException
+     */
+    public function flush()
+    {
+        throw new RuntimeException('Flush method not implemented for current Settings handler.');
+    }
+
+    /**
      * Takes care of converting some item types so they can be safely
      * stored and re-hydrated into the config files.
      *

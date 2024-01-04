@@ -221,6 +221,27 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
+    public function testFlush()
+    {
+        // Default value in the config file
+        $this->assertSame('Settings Test', $this->settings->get('Test.siteName'));
+
+        $this->settings->set('Test.siteName', 'Foo');
+
+        // Should be the last value set
+        $this->assertSame('Foo', $this->settings->get('Test.siteName'));
+
+        $this->settings->flush();
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Test',
+            'key'   => 'siteName',
+        ]);
+
+        // Should be back to the default value
+        $this->assertSame('Settings Test', $this->settings->get('Test.siteName'));
+    }
+
     public function testSetWithContext()
     {
         $this->settings->set('Test.siteName', 'Banana', 'environment:test');

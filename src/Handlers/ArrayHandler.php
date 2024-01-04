@@ -47,6 +47,12 @@ class ArrayHandler extends BaseHandler
         $this->forgetStored($class, $property, $context);
     }
 
+    public function flush()
+    {
+        $this->general  = [];
+        $this->contexts = [];
+    }
+
     /**
      * Checks whether this value is in storage.
      */
