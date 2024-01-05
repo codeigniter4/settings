@@ -99,3 +99,13 @@ setting()->forget('App.siteName');
 !!! Note
 
     Due to the shorthand nature of the helper function it cannot access contextual settings.
+
+### Commands
+
+From the `spark` command line tool you can clear all settings from the database with the `settings:clear` command.
+
+```bash
+php spark settings:clear
+```
+
+You will be prompted to confirm the action before it is performed.
