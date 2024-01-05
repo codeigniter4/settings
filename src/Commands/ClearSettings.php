@@ -13,7 +13,7 @@ class ClearSettings extends BaseCommand
 
     public function run(array $params)
     {
-        if (CLI::prompt('This will delete all settings from the database. Are you sure you want to continue?', ['y', 'n'], 'required') === 'y') {
+        if (CLI::prompt('This will delete all settings from the database. Are you sure you want to continue?', ['y', 'n'], 'required') !== 'y') {
             return;
         }
 
