@@ -93,7 +93,7 @@ class DatabaseHandler extends ArrayHandler
                     'context'    => $context,
                     'updated_at' => $time,
                 ]);
-        // ...otherwise insert it
+            // ...otherwise insert it
         } else {
             $result = $this->builder
                 ->insert([
