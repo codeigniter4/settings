@@ -141,6 +141,19 @@ class DatabaseHandler extends ArrayHandler
     }
 
     /**
+     * Deletes all records from persistent storage, if found,
+     * and from the local cache.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->builder->truncate();
+
+        parent::flush();
+    }
+
+    /**
      * Fetches values from the database in bulk to minimize calls.
      * General (null) is always fetched once, contexts are fetched
      * in their entirety for each new request.

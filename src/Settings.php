@@ -102,6 +102,19 @@ class Settings
     }
 
     /**
+     * Removes all settings from the persistent storage,
+     * Useful during testing. Use with caution.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        foreach ($this->getWriteHandlers() as $handler) {
+            $handler->flush();
+        }
+    }
+
+    /**
      * Returns the handler that is set to store values.
      *
      * @return BaseHandler[]

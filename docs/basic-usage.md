@@ -37,6 +37,12 @@ it effectively resets itself back to the default value in config file, if any.
 service('settings')->forget('App.siteName');
 ```
 
+If you ever need to completely remove all settings from their persistent storage, you can use the `flush()` method. This immediately removes all settings from the database and the in-memory cache.
+
+```php
+service('settings')->flush();
+```
+
 ### Contextual Settings
 
 In addition to the default behavior describe above, `Settings` can be used to define "contextual settings".
@@ -49,7 +55,7 @@ give them a category and identifier, like `environment:production`, `group:super
 
 An example... Say your App config includes the name of a theme to use to enhance your display. By default
 your config file specifies `App.theme = 'default'`. When a user changes their theme, you do not want this to
-change the theme for all visitors to the site, so you need to provide the user as the *context* for the change:
+change the theme for all visitors to the site, so you need to provide the user as the _context_ for the change:
 
 ```php
 $context = 'user:' . user_id();
@@ -93,3 +99,13 @@ setting()->forget('App.siteName');
 !!! Note
 
     Due to the shorthand nature of the helper function it cannot access contextual settings.
+
+### Commands
+
+From the `spark` command line tool you can clear all settings from the database with the `settings:clear` command.
+
+```bash
+php spark settings:clear
+```
+
+You will be prompted to confirm the action before it is performed.
