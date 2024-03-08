@@ -17,7 +17,7 @@ class ClearSettings extends BaseCommand
             return;
         }
 
-        service('setting')->flush();
+        service('settings')->flush();
 
         CLI::write('Settings cleared from the database.', 'green');
     }
