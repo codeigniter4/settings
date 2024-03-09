@@ -27,7 +27,7 @@ class DatabaseHandler extends ArrayHandler
     /**
      * Array of contexts that have been stored.
      *
-     * @var null[]|string[]
+     * @var list<null>|list<string>
      */
     private $hydrated = [];
 
@@ -93,7 +93,7 @@ class DatabaseHandler extends ArrayHandler
                     'context'    => $context,
                     'updated_at' => $time,
                 ]);
-        // ...otherwise insert it
+            // ...otherwise insert it
         } else {
             $result = $this->builder
                 ->insert([
