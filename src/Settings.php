@@ -17,7 +17,7 @@ class Settings
     /**
      * An array of handlers for getting/setting the values.
      *
-     * @var BaseHandler[]
+     * @var list<BaseHandler>
      */
     private array $handlers = [];
 
@@ -117,7 +117,7 @@ class Settings
     /**
      * Returns the handler that is set to store values.
      *
-     * @return BaseHandler[]
+     * @return list<BaseHandler>
      *
      * @throws RuntimeException
      */
@@ -141,7 +141,7 @@ class Settings
     /**
      * Analyzes the given key and breaks it into the class.field parts.
      *
-     * @return string[]
+     * @return list<string>
      *
      * @throws InvalidArgumentException
      */

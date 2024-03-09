@@ -27,7 +27,7 @@ class DatabaseHandler extends ArrayHandler
     /**
      * Array of contexts that have been stored.
      *
-     * @var null[]|string[]
+     * @var list<null>|list<string>
      */
     private $hydrated = [];
 

@@ -13,7 +13,7 @@ class Settings extends BaseConfig
      * match a public class var here with the
      * settings array containing 'class'.
      *
-     * @var string[]
+     * @var list<string>
      */
     public $handlers = ['database'];
 
