@@ -29,7 +29,7 @@ class DatabaseHandler extends ArrayHandler
      *
      * @var list<null>|list<string>
      */
-    private $hydrated = [];
+    private array $hydrated = [];
 
     private Settings $config;
 
