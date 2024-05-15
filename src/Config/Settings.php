@@ -15,20 +15,24 @@ class Settings extends BaseConfig
      *
      * @var list<string>
      */
-    public $handlers = ['database'];
+    public array $handlers = ['database'];
 
     /**
      * Array handler settings.
+     * 
+     * @var array<array-key, mixed>
      */
-    public $array = [
+    public array $array = [
         'class'     => ArrayHandler::class,
         'writeable' => true,
     ];
 
     /**
      * Database handler settings.
+     * 
+     * @var array<array-key, mixed>
      */
-    public $database = [
+    public array $database = [
         'class'     => DatabaseHandler::class,
         'table'     => 'settings',
         'group'     => null,
