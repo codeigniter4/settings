@@ -23,7 +23,7 @@
         "codeigniter4/devkit": "^1.1.2",
         "codeigniter4/framework": "^4.2.3",
         "phpunit/phpunit": "^9.6",
-        "rector/rector": "1.0.5"
+        "rector/rector": "1.1.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
