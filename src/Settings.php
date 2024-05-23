@@ -52,7 +52,7 @@ class Settings
      */
     public function get(string $key, ?string $context = null)
     {
-        [$class, $property, $config] = $this->prepareClassAndProperty($key);
+        [$class, $property] = $this->prepareClassAndProperty($key);
 
         // Check each of our handlers
         foreach ($this->handlers as $handler) {
@@ -64,6 +64,14 @@ class Settings
         // If no contextual value was found then fall back to general
         if ($context !== null) {
             return $this->get($key);
+        }
+
+        $config = config($class);
+
+        // Use a fully qualified class name if the
+        // config file was found.
+        if ($config !== null) {
+            $class = get_class($config);
         }
 
         return $config->{$property} ?? null;
@@ -165,14 +173,6 @@ class Settings
     {
         [$class, $property] = $this->parseDotSyntax($key);
 
-        $config = config($class);
-
-        // Use a fully qualified class name if the
-        // config file was found.
-        if ($config !== null) {
-            $class = get_class($config);
-        }
-
-        return [$class, $property, $config];
+        return [$class, $property];
     }
 }
