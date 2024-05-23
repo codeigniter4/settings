@@ -17,7 +17,7 @@ class Settings
     /**
      * An array of handlers for getting/setting the values.
      *
-     * @var list<BaseHandler>
+     * @var BaseHandler[]
      */
     private array $handlers = [];
 
@@ -61,20 +61,7 @@ class Settings
             }
         }
 
-        // If no contextual value was found then fall back to general
-        if ($context !== null) {
-            return $this->get($key);
-        }
-
-        $config = config($class);
-
-        // Use a fully qualified class name if the
-        // config file was found.
-        if ($config !== null) {
-            $class = get_class($config);
-        }
-
-        return $config->{$property} ?? null;
+        return config($class)?->{$property} ?? null;
     }
 
     /**
@@ -125,7 +112,7 @@ class Settings
     /**
      * Returns the handler that is set to store values.
      *
-     * @return list<BaseHandler>
+     * @return BaseHandler[]
      *
      * @throws RuntimeException
      */
@@ -149,7 +136,7 @@ class Settings
     /**
      * Analyzes the given key and breaks it into the class.field parts.
      *
-     * @return list<string>
+     * @return string[]
      *
      * @throws InvalidArgumentException
      */
@@ -171,8 +158,6 @@ class Settings
      */
     private function prepareClassAndProperty(string $key): array
     {
-        [$class, $property] = $this->parseDotSyntax($key);
-
-        return [$class, $property];
+        return $this->parseDotSyntax($key);
     }
 }
