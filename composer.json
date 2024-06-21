@@ -20,6 +20,7 @@
         "php": "^7.4 || ^8.0"
     },
     "require-dev": {
+        "codeigniter/coding-standard": "1.7.*",
         "codeigniter4/devkit": "^1.1.2",
         "codeigniter4/framework": "^4.2.3",
         "phpunit/phpunit": "^9.6",
