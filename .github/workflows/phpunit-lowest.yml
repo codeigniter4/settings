@@ -20,4 +20,4 @@ on:
 
 jobs:
   phpunit:
-    uses: codeigniter4/.github/.github/workflows/phpunit-lowest.yml@main
+    uses: codeigniter4/.github/.github/workflows/phpunit-lowest.yml@CI46

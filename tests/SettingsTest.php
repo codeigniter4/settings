@@ -37,37 +37,37 @@ final class SettingsTest extends TestCase
 
     public function testSettingsGetsFromConfig()
     {
-        $this->assertSame(config('Test')->siteName, $this->settings->get('Test.siteName'));
+        $this->assertSame(config('Example')->siteName, $this->settings->get('Example.siteName'));
     }
 
     public function testSettingsNotFound()
     {
-        $this->assertSame(config('Test')->siteName, $this->settings->get('Test.siteName'));
+        $this->assertSame(config('Example')->siteName, $this->settings->get('Example.siteName'));
     }
 
     public function testGetWithContext()
     {
-        $this->settings->set('Test.siteName', 'NoContext');
-        $this->settings->set('Test.siteName', 'YesContext', 'testing:true');
+        $this->settings->set('Example.siteName', 'NoContext');
+        $this->settings->set('Example.siteName', 'YesContext', 'testing:true');
 
-        $this->assertSame('NoContext', $this->settings->get('Test.siteName'));
-        $this->assertSame('YesContext', $this->settings->get('Test.siteName', 'testing:true'));
+        $this->assertSame('NoContext', $this->settings->get('Example.siteName'));
+        $this->assertSame('YesContext', $this->settings->get('Example.siteName', 'testing:true'));
     }
 
     public function testGetWithoutContextUsesGlobal()
     {
-        $this->settings->set('Test.siteName', 'NoContext');
+        $this->settings->set('Example.siteName', 'NoContext');
 
-        $this->assertSame('NoContext', $this->settings->get('Test.siteName', 'testing:true'));
+        $this->assertSame('NoContext', $this->settings->get('Example.siteName', 'testing:true'));
     }
 
     public function testForgetWithContext()
     {
-        $this->settings->set('Test.siteName', 'Bar');
-        $this->settings->set('Test.siteName', 'Amnesia', 'category:disease');
+        $this->settings->set('Example.siteName', 'Bar');
+        $this->settings->set('Example.siteName', 'Amnesia', 'category:disease');
 
-        $this->settings->forget('Test.siteName', 'category:disease');
+        $this->settings->forget('Example.siteName', 'category:disease');
 
-        $this->assertSame('Bar', $this->settings->get('Test.siteName', 'category:disease'));
+        $this->assertSame('Bar', $this->settings->get('Example.siteName', 'category:disease'));
     }
 }

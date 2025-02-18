@@ -1,22 +1,21 @@
+includes:
+    - phpstan-baseline.neon
 parameters:
-	tmpDir: build/phpstan
-	level: 5
-	paths:
-		- src/
-		- tests/
-	bootstrapFiles:
-		- vendor/codeigniter4/framework/system/Test/bootstrap.php
-	excludePaths:
-		- src/Config/Routes.php
-		- src/Views/*
-	ignoreErrors:
-	universalObjectCratesClasses:
-		- CodeIgniter\Entity
-		- CodeIgniter\Entity\Entity
-		- Faker\Generator
-	scanDirectories:
-		- vendor/codeigniter4/framework/system/Helpers
-	dynamicConstantNames:
-		- APP_NAMESPACE
-		- CI_DEBUG
-		- ENVIRONMENT
+    tmpDir: build/phpstan
+    level: 5
+    paths:
+        - src/
+        - tests/
+    bootstrapFiles:
+        - vendor/codeigniter4/framework/system/Test/bootstrap.php
+    excludePaths:
+    universalObjectCratesClasses:
+        - CodeIgniter\Entity
+        - CodeIgniter\Entity\Entity
+        - Faker\Generator
+    scanDirectories:
+        - vendor/codeigniter4/framework/system/Helpers
+    dynamicConstantNames:
+        - APP_NAMESPACE
+        - CI_DEBUG
+        - ENVIRONMENT

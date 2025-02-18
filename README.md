@@ -8,7 +8,7 @@ config classes for CodeIgniter 4 framework.
 [![](https://github.com/codeigniter4/settings/workflows/Deptrac/badge.svg)](https://github.com/codeigniter4/settings/actions/workflows/inspect.yml)
 [![Coverage Status](https://coveralls.io/repos/github/codeigniter4/settings/badge.svg?branch=develop)](https://coveralls.io/github/codeigniter4/settings?branch=develop)
 
-![PHP](https://img.shields.io/badge/PHP-%5E7.4-blue)
+![PHP](https://img.shields.io/badge/PHP-%5E8.1-blue)
 ![CodeIgniter](https://img.shields.io/badge/CodeIgniter-%5E4.2.3-blue)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 

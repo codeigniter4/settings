@@ -1,0 +1,13 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Offset string does not exist on list\<CodeIgniter\\Settings\\Handlers\\BaseHandler\>\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Settings.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''CodeIgniter\\\\Settings\\\\Settings'' and CodeIgniter\\Settings\\Settings will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/HelperTest.php

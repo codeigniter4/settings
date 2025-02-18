@@ -170,7 +170,7 @@ class Settings
         // Use a fully qualified class name if the
         // config file was found.
         if ($config !== null) {
-            $class = get_class($config);
+            $class = $config::class;
         }
 
         return [$class, $property, $config];

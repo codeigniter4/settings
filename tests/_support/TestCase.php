@@ -6,12 +6,9 @@ use CodeIgniter\Settings\Handlers\ArrayHandler;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\CIUnitTestCase;
 use Config\Services;
-use Nexus\PHPUnit\Extension\Expeditable;
 
 abstract class TestCase extends CIUnitTestCase
 {
-    use Expeditable;
-
     /**
      * @var Settings
      */

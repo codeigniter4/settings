@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of CodeIgniter Settings.
+ *
+ * (c) CodeIgniter Foundation <admin@codeigniter.com>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
 use Rector\CodeQuality\Rector\BooleanAnd\SimplifyEmptyArrayCheckRector;
 use Rector\CodeQuality\Rector\Expression\InlineIfToExplicitIfRector;
 use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
@@ -89,9 +100,5 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(FuncGetArgsToVariadicParamRector::class);
     $rectorConfig->rule(MakeInheritedMethodVisibilitySameAsParentRector::class);
     $rectorConfig->rule(SimplifyEmptyArrayCheckRector::class);
-    $rectorConfig
-        ->ruleWithConfiguration(TypedPropertyFromAssignsRector::class, [
-            // Set to false if you use in libraries, or it does create breaking changes.
-            TypedPropertyFromAssignsRector::INLINE_PUBLIC => false,
-        ]);
+    $rectorConfig->rule(TypedPropertyFromAssignsRector::class);
 };
