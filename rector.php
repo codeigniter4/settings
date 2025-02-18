@@ -37,6 +37,7 @@ use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
+use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 use Rector\ValueObject\PhpVersion;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -99,4 +100,5 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(FuncGetArgsToVariadicParamRector::class);
     $rectorConfig->rule(MakeInheritedMethodVisibilitySameAsParentRector::class);
     $rectorConfig->rule(SimplifyEmptyArrayCheckRector::class);
+    $rectorConfig->rule(TypedPropertyFromAssignsRector::class);
 };
