@@ -51,6 +51,21 @@ abstract class BaseHandler
     }
 
     /**
+     * If the Handler supports pulling values, it
+     * MUST override this method to provide that functionality.
+     * Not all Handlers will support writing values.
+     * Must throw RuntimeException for any failures.
+     *
+     * @return mixed
+     *
+     * @throws RuntimeException
+     */
+    public function pull(string $class, string $property, ?string $context = null)
+    {
+        throw new RuntimeException('Pull method not implemented for current Settings handler.');
+    }
+
+    /**
      * All handlers MUST support flushing all values.
      *
      * @return void

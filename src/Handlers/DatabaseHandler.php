@@ -141,6 +141,21 @@ class DatabaseHandler extends ArrayHandler
     }
 
     /**
+     * Retrieves a value from persistent storage
+     * and deletes it from the local cache.
+     *
+     * @return mixed|null
+     */
+    public function pull(string $class, string $property, ?string $context = null): mixed
+    {
+        $value = $this->getStored($class, $property, $context);
+
+        $this->forget($class, $property, $context);
+
+        return $value;
+    }
+
+    /**
      * Deletes all records from persistent storage, if found,
      * and from the local cache.
      *

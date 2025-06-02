@@ -47,6 +47,15 @@ class ArrayHandler extends BaseHandler
         $this->forgetStored($class, $property, $context);
     }
 
+    public function pull(string $class, string $property, ?string $context = null): mixed
+    {
+        $value = $this->getStored($class, $property, $context);
+
+        $this->forget($class, $property, $context);
+
+        return $value;
+    }
+
     public function flush()
     {
         $this->general  = [];
