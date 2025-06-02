@@ -221,7 +221,7 @@ final class DatabaseHandlerTest extends TestCase
             'updated_at' => Time::now()->toDateTimeString(),
         ]);
 
-        $value = $this->settings->pull('Example.siteName');
+        $value = $this->settings->take('Example.siteName');
 
         $this->dontSeeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Example',

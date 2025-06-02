@@ -106,12 +106,12 @@ class Settings
      *
      * @return mixed
      */
-    public function pull(string $key, ?string $context = null)
+    public function take(string $key, ?string $context = null)
     {
         [$class, $property] = $this->prepareClassAndProperty($key);
 
         foreach ($this->getWriteHandlers() as $handler) {
-            return $handler->pull($class, $property, $context);
+            return $handler->take($class, $property, $context);
         }
     }
 

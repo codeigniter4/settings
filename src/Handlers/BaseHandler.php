@@ -60,7 +60,7 @@ abstract class BaseHandler
      *
      * @throws RuntimeException
      */
-    public function pull(string $class, string $property, ?string $context = null)
+    public function take(string $class, string $property, ?string $context = null)
     {
         throw new RuntimeException('Pull method not implemented for current Settings handler.');
     }

@@ -75,7 +75,7 @@ final class SettingsTest extends TestCase
     {
         $this->settings->set('Example.siteName', 'Amnesia', 'category:disease');
 
-        $value = $this->settings->pull('Example.siteName', 'category:disease');
+        $value = $this->settings->take('Example.siteName', 'category:disease');
 
         $this->assertSame('Amnesia', $value);
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName', 'category:disease'));
@@ -85,7 +85,7 @@ final class SettingsTest extends TestCase
     {
         $this->settings->set('Example.siteName', 'NoContext');
 
-        $value = $this->settings->pull('Example.siteName');
+        $value = $this->settings->take('Example.siteName');
 
         $this->assertSame('NoContext', $value);
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
