@@ -46,7 +46,6 @@ service('settings')->flush();
 Also, you can use the `pull()` method to retrieve a setting and then remove it from the persistent storage in one go. This is useful when you want to retrieve a value and ensure it is no longer available for future use.
 
 ```php
-// The same as config('App')->siteName;
 $siteName = service('settings')->pull('App.siteName');
 ```
 
