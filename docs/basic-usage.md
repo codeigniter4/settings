@@ -43,10 +43,10 @@ If you ever need to completely remove all settings from their persistent storage
 service('settings')->flush();
 ```
 
-Also, you can use the `pull()` method to retrieve a setting and then remove it from the persistent storage in one go. This is useful when you want to retrieve a value and ensure it is no longer available for future use.
+Also, you can use the `take()` method to retrieve a setting and then remove it from the persistent storage in one go. This is useful when you want to retrieve a value and ensure it is no longer available for future use.
 
 ```php
-$siteName = service('settings')->pull('App.siteName');
+$siteName = service('settings')->take('App.siteName');
 ```
 
 ### Contextual Settings
