@@ -211,6 +211,26 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
+    public function testPullSuccess()
+    {
+        $this->hasInDatabase($this->table, [
+            'class'      => 'Tests\Support\Config\Example',
+            'key'        => 'siteName',
+            'value'      => 'foo',
+            'created_at' => Time::now()->toDateTimeString(),
+            'updated_at' => Time::now()->toDateTimeString(),
+        ]);
+
+        $value = $this->settings->pull('Example.siteName');
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+
+        $this->assertSame('foo', $value);
+    }
+
     public function testForgetWithNoStoredRecord()
     {
         $this->settings->forget('Example.siteName');

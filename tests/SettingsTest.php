@@ -70,4 +70,24 @@ final class SettingsTest extends TestCase
 
         $this->assertSame('Bar', $this->settings->get('Example.siteName', 'category:disease'));
     }
+
+    public function testPullWithContext()
+    {
+        $this->settings->set('Example.siteName', 'Amnesia', 'category:disease');
+
+        $value = $this->settings->pull('Example.siteName', 'category:disease');
+
+        $this->assertSame('Amnesia', $value);
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName', 'category:disease'));
+    }
+
+    public function testPullWithoutContext()
+    {
+        $this->settings->set('Example.siteName', 'NoContext');
+
+        $value = $this->settings->pull('Example.siteName');
+
+        $this->assertSame('NoContext', $value);
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
+    }
 }

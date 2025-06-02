@@ -148,7 +148,7 @@ class DatabaseHandler extends ArrayHandler
      */
     public function pull(string $class, string $property, ?string $context = null): mixed
     {
-        $value = $this->getStored($class, $property, $context);
+        $value = $this->get($class, $property, $context);
 
         $this->forget($class, $property, $context);
 

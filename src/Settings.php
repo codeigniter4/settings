@@ -102,6 +102,20 @@ class Settings
     }
 
     /**
+     * Retrieves a value from the persistent storage and removes it.
+     *
+     * @return void
+     */
+    public function pull(string $key, ?string $context = null)
+    {
+        [$class, $property] = $this->prepareClassAndProperty($key);
+
+        foreach ($this->getWriteHandlers() as $handler) {
+            return $handler->pull($class, $property, $context);
+        }
+    }
+
+    /**
      * Removes all settings from the persistent storage,
      * Useful during testing. Use with caution.
      *
