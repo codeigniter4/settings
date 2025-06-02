@@ -104,7 +104,7 @@ class Settings
     /**
      * Retrieves a value from the persistent storage and removes it.
      *
-     * @return void
+     * @return mixed
      */
     public function pull(string $key, ?string $context = null)
     {
