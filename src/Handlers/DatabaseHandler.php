@@ -32,15 +32,55 @@ class DatabaseHandler extends ArrayHandler
     private array $hydrated = [];
 
     private Settings $config;
+    private string $key = 'ci_settings';
 
     /**
-     * Stores the configured database table.
+     * Index key to keep track of cached context keys so we can invalidate them all.
      */
+    private string $indexKey = 'ci_settings_index';
+
     public function __construct()
     {
         $this->config  = config('Settings');
         $this->db      = db_connect($this->config->database['group']);
         $this->builder = $this->db->table($this->config->database['table']);
+    }
+
+    /**
+     * Build cache key for a given context.
+     */
+    private function cacheKeyFor(?string $context): string
+    {
+        return $this->key . '_' . ($context === null ? 'general' : 'ctx_' . $context);
+    }
+
+    /**
+     * Mark a context as cached (store in index).
+     */
+    private function markCachedContext(?string $context): void
+    {
+        $idx = cache()->get($this->indexKey) ?? [];
+
+        $name = $context === null ? 'general' : 'ctx_' . $context;
+
+        if (! in_array($name, $idx, true)) {
+            $idx[] = $name;
+            cache()->save($this->indexKey, $idx, DAY);
+        }
+    }
+
+    /**
+     * Clear all cached context keys tracked in index.
+     */
+    private function clearCacheAll(): void
+    {
+        $idx = cache()->get($this->indexKey) ?? [];
+
+        foreach ($idx as $name) {
+            cache()->delete($this->key . '_' . $name);
+        }
+
+        cache()->delete($this->indexKey);
     }
 
     /**
@@ -113,6 +153,9 @@ class DatabaseHandler extends ArrayHandler
 
         // Update storage
         $this->setStored($class, $property, $value, $context);
+
+        // Invalidate cached contexts (we track index to remove all related cache keys)
+        $this->clearCacheAll();
     }
 
     /**
@@ -138,6 +181,9 @@ class DatabaseHandler extends ArrayHandler
 
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
+
+        // Invalidate cached contexts
+        $this->clearCacheAll();
     }
 
     /**
@@ -151,6 +197,9 @@ class DatabaseHandler extends ArrayHandler
         $this->builder->truncate();
 
         parent::flush();
+
+        // Invalidate cached contexts
+        $this->clearCacheAll();
     }
 
     /**
@@ -167,28 +216,56 @@ class DatabaseHandler extends ArrayHandler
             return;
         }
 
+        // If requesting general context, fetch only general rows
         if ($context === null) {
-            $this->hydrated[] = null;
+            $cacheKey = $this->cacheKeyFor(null);
 
-            $query = $this->builder->where('context', null);
-        } else {
-            $query = $this->builder->where('context', $context);
+            if (! $result = cache()->get($cacheKey)) {
+                $builder  = $this->db->table($this->config->database['table']);
+                $dbResult = $builder->where('context', null)->get();
 
-            // If general has not been hydrated we will do that at the same time
-            if (! in_array(null, $this->hydrated, true)) {
-                $this->hydrated[] = null;
-                $query->orWhere('context', null);
+                if (is_bool($dbResult)) {
+                    throw new RuntimeException($this->db->error()['message'] ?? 'Error reading from database.');
+                }
+
+                $result = $dbResult->getResultObject();
+                cache()->save($cacheKey, $result, DAY);
+                $this->markCachedContext(null);
             }
 
-            $this->hydrated[] = $context;
+            foreach ($result as $row) {
+                $this->setStored($row->class, $row->key, $this->parseValue($row->value, $row->type), $row->context);
+            }
+
+            $this->hydrated[] = null;
+
+            return;
         }
 
-        if (is_bool($result = $query->get())) {
-            throw new RuntimeException($this->db->error()['message'] ?? 'Error reading from database.');
+        // For specific context: ensure general values are loaded first
+        if (! in_array(null, $this->hydrated, true)) {
+            $this->hydrate(null);
         }
 
-        foreach ($result->getResultObject() as $row) {
+        $cacheKeyCtx = $this->cacheKeyFor($context);
+
+        if (! $result = cache()->get($cacheKeyCtx)) {
+            $builder  = $this->db->table($this->config->database['table']);
+            $dbResult = $builder->where('context', $context)->get();
+
+            if (is_bool($dbResult)) {
+                throw new RuntimeException($this->db->error()['message'] ?? 'Error reading from database.');
+            }
+
+            $result = $dbResult->getResultObject();
+            cache()->save($cacheKeyCtx, $result, DAY);
+            $this->markCachedContext($context);
+        }
+
+        foreach ($result as $row) {
             $this->setStored($row->class, $row->key, $this->parseValue($row->value, $row->type), $row->context);
         }
+
+        $this->hydrated[] = $context;
     }
 }

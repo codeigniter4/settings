@@ -244,14 +244,14 @@ final class DatabaseHandlerTest extends TestCase
 
     public function testSetWithContext()
     {
-        $this->settings->set('Example.siteName', 'Banana', 'environment:test');
+        $this->settings->set('Example.siteName', 'Banana', 'environment.test');
 
         $this->seeInDatabase($this->table, [
             'class'   => 'Tests\Support\Config\Example',
             'key'     => 'siteName',
             'value'   => 'Banana',
             'type'    => 'string',
-            'context' => 'environment:test',
+            'context' => 'environment.test',
         ]);
     }
 
@@ -261,16 +261,16 @@ final class DatabaseHandlerTest extends TestCase
     public function testSetUpdatesContextOnly()
     {
         $this->settings->set('Example.siteName', 'Humpty');
-        $this->settings->set('Example.siteName', 'Jack', 'context:male');
-        $this->settings->set('Example.siteName', 'Jill', 'context:female');
-        $this->settings->set('Example.siteName', 'Jane', 'context:female');
+        $this->settings->set('Example.siteName', 'Jack', 'context.male');
+        $this->settings->set('Example.siteName', 'Jill', 'context.female');
+        $this->settings->set('Example.siteName', 'Jane', 'context.female');
 
         $this->seeInDatabase($this->table, [
             'class'   => 'Tests\Support\Config\Example',
             'key'     => 'siteName',
             'value'   => 'Jane',
             'type'    => 'string',
-            'context' => 'context:female',
+            'context' => 'context.female',
         ]);
 
         $this->seeInDatabase($this->table, [
@@ -285,7 +285,7 @@ final class DatabaseHandlerTest extends TestCase
             'key'     => 'siteName',
             'value'   => 'Jack',
             'type'    => 'string',
-            'context' => 'context:male',
+            'context' => 'context.male',
         ]);
     }
 }
