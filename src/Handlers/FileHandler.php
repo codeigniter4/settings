@@ -116,17 +116,39 @@ class FileHandler extends ArrayHandler
      */
     public function flush()
     {
-        // Get all settings files
+        // Delete all .php files in main directory (null context files)
         $files = glob($this->path . '*.php', GLOB_NOSORT);
 
         if ($files === false) {
             throw new RuntimeException('Unable to read settings directory: ' . $this->path);
         }
 
-        // Delete all files
         foreach ($files as $file) {
             if (! unlink($file)) {
                 throw new RuntimeException('Unable to delete settings file: ' . $file);
+            }
+        }
+
+        // Delete all context subdirectories and their contents
+        $directories = glob($this->path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+
+        if ($directories !== false) {
+            foreach ($directories as $directory) {
+                // Delete all files inside the directory
+                $contextFiles = glob($directory . '/*.php', GLOB_NOSORT);
+
+                if ($contextFiles !== false) {
+                    foreach ($contextFiles as $file) {
+                        if (! unlink($file)) {
+                            throw new RuntimeException('Unable to delete settings file: ' . $file);
+                        }
+                    }
+                }
+
+                // Remove the empty directory
+                if (! rmdir($directory)) {
+                    throw new RuntimeException('Unable to delete directory: ' . $directory);
+                }
             }
         }
 

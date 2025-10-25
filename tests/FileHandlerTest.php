@@ -188,6 +188,36 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
     }
 
+    public function testFlushRemovesFilesAndContextDirectories()
+    {
+        // Create files in main directory (null context)
+        $this->settings->set('Example.siteName', 'Main');
+        $this->settings->set('Example.siteEmail', 'main@example.com');
+
+        // Create files in context subdirectories
+        $this->settings->set('Example.siteName', 'Production', 'production');
+        $this->settings->set('Example.siteTitle', 'Prod Site', 'production');
+        $this->settings->set('Example.siteName', 'Testing', 'testing');
+
+        $mainFiles = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertNotEmpty($mainFiles);
+
+        $directories = glob($this->path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+        $this->assertCount(2, $directories); // production and testing
+
+        $this->settings->flush();
+
+        $mainFiles = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertEmpty($mainFiles);
+
+        $directories = glob($this->path . '*', GLOB_ONLYDIR | GLOB_NOSORT);
+        $this->assertEmpty($directories);
+
+        // Should be back to default values
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName', 'production'));
+    }
+
     public function testSetWithContext()
     {
         $this->settings->set('Example.siteName', 'Banana', 'environment:test');
