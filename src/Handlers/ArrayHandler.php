@@ -68,7 +68,7 @@ class ArrayHandler extends BaseHandler
     /**
      * Retrieves a value from storage.
      *
-     * @return mixed|null
+     * @return mixed
      */
     protected function getStored(string $class, string $property, ?string $context)
     {

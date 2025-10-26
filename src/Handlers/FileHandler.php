@@ -58,7 +58,7 @@ class FileHandler extends ArrayHandler
      * To boost performance, all values are read and stored
      * on the first call for each class+context, then retrieved from storage.
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function get(string $class, string $property, ?string $context = null)
     {

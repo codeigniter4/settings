@@ -4,6 +4,7 @@ namespace CodeIgniter\Settings\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
+use CodeIgniter\Settings\Config\Settings;
 
 class ClearSettings extends BaseCommand
 {
@@ -33,10 +34,8 @@ class ClearSettings extends BaseCommand
 
     /**
      * Gets a human-readable list of handler names.
-     *
-     * @param mixed $config
      */
-    private function getHandlerNames($config): ?string
+    private function getHandlerNames(Settings $config): ?string
     {
         if ($config->handlers === []) {
             return null;

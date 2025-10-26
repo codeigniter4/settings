@@ -59,7 +59,7 @@ class DatabaseHandler extends ArrayHandler
      * read and stored the first call for each contexts
      * and then retrieved from storage.
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function get(string $class, string $property, ?string $context = null)
     {
