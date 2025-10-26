@@ -6,6 +6,7 @@ use CodeIgniter\I18n\Time;
 use CodeIgniter\Settings\Settings;
 use CodeIgniter\Test\DatabaseTestTrait;
 use InvalidArgumentException;
+use ReflectionClass;
 use Tests\Support\TestCase;
 
 /**
@@ -286,6 +287,144 @@ final class DatabaseHandlerTest extends TestCase
             'value'   => 'Jack',
             'type'    => 'string',
             'context' => 'context:male',
+        ]);
+    }
+
+    public function testDeferredWritesReducesDatabaseQueries()
+    {
+        // Create new settings instance with deferred writes enabled
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+        $deferredSettings                = new Settings($config);
+
+        // Multiple set calls to same class
+        $deferredSettings->set('Example.siteName', 'Value1');
+        $deferredSettings->set('Example.siteEmail', 'test@example.com');
+        $deferredSettings->set('Example.siteTitle', 'Value3');
+
+        // Database should NOT have the rows yet (writes are deferred)
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteTitle',
+        ]);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['database']->persistPendingProperties();
+
+        // Now all rows should exist in database
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'Value1',
+            'type'  => 'string',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+            'value' => 'test@example.com',
+            'type'  => 'string',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteTitle',
+            'value' => 'Value3',
+            'type'  => 'string',
+        ]);
+    }
+
+    public function testDeferredWritesForgetDeletesAfterPersist()
+    {
+        // First, insert a record to delete
+        $this->settings->set('Example.siteName', 'InitialValue');
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'InitialValue',
+        ]);
+
+        // Create new settings instance with deferred writes enabled
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+        $deferredSettings                = new Settings($config);
+
+        // Call forget
+        $deferredSettings->forget('Example.siteName');
+
+        // Database should STILL have the row (delete is deferred)
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['database']->persistPendingProperties();
+
+        // Now the row should be deleted
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+    }
+
+    public function testDeferredWritesDeleteThenSet()
+    {
+        // First, insert a record
+        $this->settings->set('Example.siteName', 'InitialValue');
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'InitialValue',
+        ]);
+
+        // Create new settings instance with deferred writes enabled
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+        $deferredSettings                = new Settings($config);
+
+        // Delete then set
+        $deferredSettings->forget('Example.siteName');
+        $deferredSettings->set('Example.siteName', 'NewValue');
+
+        // Database should STILL have the old value (writes are deferred)
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'InitialValue',
+        ]);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['database']->persistPendingProperties();
+
+        // Now the row should have the new value (set overwrites delete in pending operations)
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'NewValue',
         ]);
     }
 }

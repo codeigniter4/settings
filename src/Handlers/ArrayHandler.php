@@ -2,6 +2,8 @@
 
 namespace CodeIgniter\Settings\Handlers;
 
+use CodeIgniter\Events\Events;
+
 /**
  * Array Settings Handler
  *
@@ -15,7 +17,7 @@ class ArrayHandler extends BaseHandler
      * Storage for general settings.
      * Format: ['class' => ['property' => ['value', 'type']]]
      *
-     * @var array<string,array<string,array>>
+     * @var array<string, array<string, array{mixed, string}>>
      */
     private array $general = [];
 
@@ -23,9 +25,24 @@ class ArrayHandler extends BaseHandler
      * Storage for context settings.
      * Format: ['context' => ['class' => ['property' => ['value', 'type']]]]
      *
-     * @var array<string,array|null>
+     * @var array<string, array<string, array<string, array{mixed, string}>>>
      */
     private array $contexts = [];
+
+    /**
+     * Whether to defer writes until the end of request.
+     * Used by handlers that support deferred writes.
+     */
+    protected bool $deferWrites = false;
+
+    /**
+     * Array of properties that have been modified but not persisted.
+     * Used by handlers that support deferred writes.
+     * Format: ['key' => ['class' => ..., 'property' => ..., 'value' => ..., 'context' => ..., 'delete' => ...]]
+     *
+     * @var array<string, array{class: string, property: string, value: mixed, context: string|null, delete: bool}>
+     */
+    protected array $pendingProperties = [];
 
     public function has(string $class, string $property, ?string $context = null): bool
     {
@@ -117,16 +134,62 @@ class ArrayHandler extends BaseHandler
     }
 
     /**
-     * Retrieves all stored properties for a specific class and context.
+     * Marks a property as pending (needs to be persisted).
+     * Used by handlers that support deferred writes.
      *
-     * @return array<string,array> Format: ['property' => ['value', 'type']]
+     * @param mixed $value
      */
-    protected function getAllStored(string $class, ?string $context): array
+    protected function markPending(string $class, string $property, $value, ?string $context, bool $isDelete = false): void
     {
-        if ($context === null) {
-            return $this->general[$class] ?? [];
+        $key                           = $class . '::' . $property . ($context === null ? '' : '::' . $context);
+        $this->pendingProperties[$key] = [
+            'class'    => $class,
+            'property' => $property,
+            'value'    => $value,
+            'context'  => $context,
+            'delete'   => $isDelete,
+        ];
+    }
+
+    /**
+     * Groups pending properties by class+context combination.
+     * Useful for handlers that need to persist changes on a per-class basis.
+     * Format: ['key' => ['class' => ..., 'context' => ..., 'changes' => [...]]]
+     *
+     * @return array<string, array{class: string, context: string|null, changes: list<array{class: string, property: string, value: mixed, context: string|null, delete: bool}>}>
+     */
+    protected function getPendingPropertiesGrouped(): array
+    {
+        $grouped = [];
+
+        foreach ($this->pendingProperties as $info) {
+            $key = $info['class'] . ($info['context'] === null ? '' : '::' . $info['context']);
+
+            if (! isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'class'   => $info['class'],
+                    'context' => $info['context'],
+                    'changes' => [],
+                ];
+            }
+
+            $grouped[$key]['changes'][] = $info;
         }
 
-        return $this->contexts[$context][$class] ?? [];
+        return $grouped;
+    }
+
+    /**
+     * Sets up deferred writes for handlers that support it.
+     *
+     * @param bool $enabled Whether deferred writes should be enabled
+     */
+    protected function setupDeferredWrites(bool $enabled): void
+    {
+        $this->deferWrites = $enabled;
+
+        if ($this->deferWrites) {
+            Events::on('post_system', [$this, 'persistPendingProperties']);
+        }
     }
 }

@@ -30,7 +30,7 @@ service('settings')->forget('App.siteName');
 ### Requirements
 
 ![PHP](https://img.shields.io/badge/PHP-%5E8.1-red)
-![CodeIgniter](https://img.shields.io/badge/CodeIgniter-%5E4.2.3-red)
+![CodeIgniter](https://img.shields.io/badge/CodeIgniter-%5E4.3-red)
 
 ### Acknowledgements
 

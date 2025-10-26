@@ -30,18 +30,20 @@ class Settings extends BaseConfig
      * Database handler settings.
      */
     public $database = [
-        'class'     => DatabaseHandler::class,
-        'table'     => 'settings',
-        'group'     => null,
-        'writeable' => true,
+        'class'       => DatabaseHandler::class,
+        'table'       => 'settings',
+        'group'       => null,
+        'writeable'   => true,
+        'deferWrites' => false,
     ];
 
     /**
      * File handler settings.
      */
     public $file = [
-        'class'     => FileHandler::class,
-        'path'      => WRITEPATH . 'settings',
-        'writeable' => true,
+        'class'       => FileHandler::class,
+        'path'        => WRITEPATH . 'settings',
+        'writeable'   => true,
+        'deferWrites' => false,
     ];
 }

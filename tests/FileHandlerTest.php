@@ -431,4 +431,126 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('concurrent@example.com', $newSettings->get('Example.siteEmail'));
         $this->assertSame('Second', $newSettings->get('Example.siteTitle'));
     }
+
+    public function testDeferredWritesReducesFileWrites()
+    {
+        // Create new settings instance with deferred writes enabled
+        /** @var ConfigSettings $config */
+        $config                      = config('Settings');
+        $config->handlers            = ['file'];
+        $config->file['path']        = $this->path;
+        $config->file['deferWrites'] = true;
+        $deferredSettings            = new Settings($config);
+
+        // Multiple set calls to same class
+        $deferredSettings->set('Example.siteName', 'Value1');
+        $deferredSettings->set('Example.siteEmail', 'test@example.com');
+        $deferredSettings->set('Example.siteTitle', 'Value3');
+
+        // File should NOT exist yet (writes are deferred)
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertEmpty($files);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['file']->persistPendingProperties();
+
+        // Now file should exist with all three properties
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertArrayHasKey('siteEmail', $data);
+        $this->assertArrayHasKey('siteTitle', $data);
+
+        $this->assertSame('Value1', $data['siteName']['value']);
+        $this->assertSame('test@example.com', $data['siteEmail']['value']);
+        $this->assertSame('Value3', $data['siteTitle']['value']);
+    }
+
+    public function testDeferredWritesForgetDeletesAfterPersist()
+    {
+        // First, create a file with a value
+        $this->settings->set('Example.siteName', 'InitialValue');
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertSame('InitialValue', $data['siteName']['value']);
+
+        // Create new settings instance with deferred writes enabled
+        /** @var ConfigSettings $config */
+        $config                      = config('Settings');
+        $config->handlers            = ['file'];
+        $config->file['deferWrites'] = true;
+        $deferredSettings            = new Settings($config);
+
+        // Call forget
+        $deferredSettings->forget('Example.siteName');
+
+        // File should STILL exist with the value (delete is deferred)
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['file']->persistPendingProperties();
+
+        // Now the property should be removed from the file
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayNotHasKey('siteName', $data);
+    }
+
+    public function testDeferredWritesDeleteThenSet()
+    {
+        // First, create a file with a value
+        $this->settings->set('Example.siteName', 'InitialValue');
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertSame('InitialValue', $data['siteName']['value']);
+
+        // Create new settings instance with deferred writes enabled
+        /** @var ConfigSettings $config */
+        $config                      = config('Settings');
+        $config->handlers            = ['file'];
+        $config->file['deferWrites'] = true;
+        $deferredSettings            = new Settings($config);
+
+        // Delete then set
+        $deferredSettings->forget('Example.siteName');
+        $deferredSettings->set('Example.siteName', 'NewValue');
+
+        // File should STILL have the old value (writes are deferred)
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertSame('InitialValue', $data['siteName']['value']);
+
+        // Trigger the deferred write manually
+        $reflection       = new ReflectionClass($deferredSettings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($deferredSettings);
+        $handlers['file']->persistPendingProperties();
+
+        // Now the file should have the new value
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertSame('NewValue', $data['siteName']['value']);
+    }
 }
