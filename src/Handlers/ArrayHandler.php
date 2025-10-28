@@ -68,7 +68,7 @@ class ArrayHandler extends BaseHandler
     /**
      * Retrieves a value from storage.
      *
-     * @return mixed|null
+     * @return mixed
      */
     protected function getStored(string $class, string $property, ?string $context)
     {
@@ -114,5 +114,19 @@ class ArrayHandler extends BaseHandler
         } else {
             unset($this->contexts[$context][$class][$property]);
         }
+    }
+
+    /**
+     * Retrieves all stored properties for a specific class and context.
+     *
+     * @return array<string,array> Format: ['property' => ['value', 'type']]
+     */
+    protected function getAllStored(string $class, ?string $context): array
+    {
+        if ($context === null) {
+            return $this->general[$class] ?? [];
+        }
+
+        return $this->contexts[$context][$class] ?? [];
     }
 }

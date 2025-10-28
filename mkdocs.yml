@@ -53,7 +53,7 @@ extra:
 site_url: https://settings.codeigniter.com/
 repo_url: https://github.com/codeigniter4/settings
 edit_uri: edit/develop/docs/
-copyright: Copyright &copy; 2023 CodeIgniter Foundation.
+copyright: Copyright &copy; 2025 CodeIgniter Foundation.
 
 markdown_extensions:
   - admonition
@@ -73,5 +73,6 @@ extra_javascript:
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Configuration: configuration.md
   - Basic usage: basic-usage.md
   - Limitations: limitations.md
