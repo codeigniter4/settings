@@ -25,15 +25,15 @@ Example:
 ```php
 public $handlers = ['database'];
 ```
+
 ### Multiple handlers
 
-When multiple handlers are configured, they are checked in the order specified in $handlers. The first handler that has a value for the requested setting will return it.
-
-Example with fallback:
+Example:
 
 ```php
 public $handlers = ['file', 'database'];
 ```
+
 This configuration will:
 
 1. Check the file handler first
