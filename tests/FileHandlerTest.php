@@ -52,6 +52,31 @@ final class FileHandlerTest extends TestCase
         }
     }
 
+    /**
+     * Creates a Settings instance with deferred writes enabled.
+     */
+    private function createDeferredSettings(): Settings
+    {
+        /** @var ConfigSettings $config */
+        $config                      = config('Settings');
+        $config->handlers            = ['file'];
+        $config->file['path']        = $this->path;
+        $config->file['deferWrites'] = true;
+
+        return new Settings($config);
+    }
+
+    /**
+     * Manually triggers deferred writes for a Settings instance.
+     */
+    private function persistDeferredWrites(Settings $settings): void
+    {
+        $reflection       = new ReflectionClass($settings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($settings);
+        $handlers['file']->persistPendingProperties();
+    }
+
     public function testSetCreatesDirectory()
     {
         $this->assertDirectoryExists($this->path);
@@ -435,12 +460,7 @@ final class FileHandlerTest extends TestCase
     public function testDeferredWritesReducesFileWrites()
     {
         // Create new settings instance with deferred writes enabled
-        /** @var ConfigSettings $config */
-        $config                      = config('Settings');
-        $config->handlers            = ['file'];
-        $config->file['path']        = $this->path;
-        $config->file['deferWrites'] = true;
-        $deferredSettings            = new Settings($config);
+        $deferredSettings = $this->createDeferredSettings();
 
         // Multiple set calls to same class
         $deferredSettings->set('Example.siteName', 'Value1');
@@ -452,10 +472,7 @@ final class FileHandlerTest extends TestCase
         $this->assertEmpty($files);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['file']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now file should exist with all three properties
         $files = glob($this->path . '*.php', GLOB_NOSORT);
@@ -499,10 +516,7 @@ final class FileHandlerTest extends TestCase
         $this->assertArrayHasKey('siteName', $data);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['file']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now the property should be removed from the file
         $files = glob($this->path . '*.php', GLOB_NOSORT);
@@ -541,10 +555,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('InitialValue', $data['siteName']['value']);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['file']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now the file should have the new value
         $files = glob($this->path . '*.php', GLOB_NOSORT);

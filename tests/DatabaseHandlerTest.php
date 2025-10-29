@@ -45,6 +45,30 @@ final class DatabaseHandlerTest extends TestCase
         $this->group    = $config->database['group'];
     }
 
+    /**
+     * Creates a Settings instance with deferred writes enabled.
+     */
+    private function createDeferredSettings(): Settings
+    {
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+
+        return new Settings($config);
+    }
+
+    /**
+     * Manually triggers deferred writes for a Settings instance.
+     */
+    private function persistDeferredWrites(Settings $settings): void
+    {
+        $reflection       = new ReflectionClass($settings);
+        $handlersProperty = $reflection->getProperty('handlers');
+        $handlers         = $handlersProperty->getValue($settings);
+        $handlers['database']->persistPendingProperties();
+    }
+
     public function testSetInsertsNewRows()
     {
         $this->settings->set('Example.siteName', 'Foo');
@@ -293,11 +317,7 @@ final class DatabaseHandlerTest extends TestCase
     public function testDeferredWritesReducesDatabaseQueries()
     {
         // Create new settings instance with deferred writes enabled
-        /** @var \CodeIgniter\Settings\Config\Settings $config */
-        $config                          = config('Settings');
-        $config->handlers                = ['database'];
-        $config->database['deferWrites'] = true;
-        $deferredSettings                = new Settings($config);
+        $deferredSettings = $this->createDeferredSettings();
 
         // Multiple set calls to same class
         $deferredSettings->set('Example.siteName', 'Value1');
@@ -319,10 +339,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['database']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now all rows should exist in database
         $this->seeInDatabase($this->table, [
@@ -357,11 +374,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
 
         // Create new settings instance with deferred writes enabled
-        /** @var \CodeIgniter\Settings\Config\Settings $config */
-        $config                          = config('Settings');
-        $config->handlers                = ['database'];
-        $config->database['deferWrites'] = true;
-        $deferredSettings                = new Settings($config);
+        $deferredSettings = $this->createDeferredSettings();
 
         // Call forget
         $deferredSettings->forget('Example.siteName');
@@ -373,10 +386,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['database']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now the row should be deleted
         $this->dontSeeInDatabase($this->table, [
@@ -397,11 +407,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
 
         // Create new settings instance with deferred writes enabled
-        /** @var \CodeIgniter\Settings\Config\Settings $config */
-        $config                          = config('Settings');
-        $config->handlers                = ['database'];
-        $config->database['deferWrites'] = true;
-        $deferredSettings                = new Settings($config);
+        $deferredSettings = $this->createDeferredSettings();
 
         // Delete then set
         $deferredSettings->forget('Example.siteName');
@@ -415,10 +421,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
 
         // Trigger the deferred write manually
-        $reflection       = new ReflectionClass($deferredSettings);
-        $handlersProperty = $reflection->getProperty('handlers');
-        $handlers         = $handlersProperty->getValue($deferredSettings);
-        $handlers['database']->persistPendingProperties();
+        $this->persistDeferredWrites($deferredSettings);
 
         // Now the row should have the new value (set overwrites delete in pending operations)
         $this->seeInDatabase($this->table, [
@@ -426,5 +429,105 @@ final class DatabaseHandlerTest extends TestCase
             'key'   => 'siteName',
             'value' => 'NewValue',
         ]);
+    }
+
+    public function testNoDuplicatesWhenUpdatingExistingRecords()
+    {
+        // Pre-populate database with existing records
+        $this->settings->set('Example.siteName', 'InitialValue1');
+        $this->settings->set('Example.siteEmail', 'InitialValue2');
+        $this->settings->set('Example.siteTitle', 'InitialValue3');
+
+        $totalCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->countAllResults();
+
+        $this->assertSame(3, $totalCount);
+
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+        $deferredSettings                = new Settings($config);
+
+        $deferredSettings->set('Example.siteName', 'UpdatedValue1');
+        $deferredSettings->set('Example.siteName', 'UpdatedValue2');
+        $deferredSettings->set('Example.siteEmail', 'UpdatedEmail1');
+        $deferredSettings->set('Example.siteEmail', 'UpdatedEmail2');
+
+        // Trigger the deferred write manually
+        $this->persistDeferredWrites($deferredSettings);
+
+        // Verify no duplicates - should have exactly 3 records total
+        $totalCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->countAllResults();
+
+        $this->assertSame(3, $totalCount);
+
+        // Verify each property has exactly 1 record
+        $siteNameCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->where('key', 'siteName')
+            ->countAllResults();
+
+        $this->assertSame(1, $siteNameCount);
+
+        $siteEmailCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->where('key', 'siteEmail')
+            ->countAllResults();
+
+        $this->assertSame(1, $siteEmailCount);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'UpdatedValue2',
+        ]);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+            'value' => 'UpdatedEmail2',
+        ]);
+    }
+
+    public function testNoDuplicatesWithMixedNewAndExistingRecords()
+    {
+        // Pre-populate database with some existing records
+        $this->settings->set('Example.siteName', 'ExistingValue');
+        $this->settings->set('Example.siteEmail', 'existing@example.com');
+
+        /** @var \CodeIgniter\Settings\Config\Settings $config */
+        $config                          = config('Settings');
+        $config->handlers                = ['database'];
+        $config->database['deferWrites'] = true;
+        $deferredSettings                = new Settings($config);
+
+        $deferredSettings->set('Example.siteName', 'UpdatedValue');     // Update existing
+        $deferredSettings->set('Example.siteTitle', 'NewValue1');       // Create new
+        $deferredSettings->set('Example.siteEmail', 'new@example.com'); // Update existing
+        $deferredSettings->set('Example.tagline', 'NewValue2');         // Create new
+
+        // Trigger the deferred write manually
+        $this->persistDeferredWrites($deferredSettings);
+
+        // Verify no duplicates - should have exactly 4 records total
+        $totalCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->countAllResults();
+
+        $this->assertSame(4, $totalCount);
+
+        // Verify each property has exactly 1 record
+        foreach (['siteName', 'siteEmail', 'siteTitle', 'tagline'] as $key) {
+            $count = $this->db->table($this->table)
+                ->where('class', 'Tests\Support\Config\Example')
+                ->where('key', $key)
+                ->countAllResults();
+
+            $this->assertSame(1, $count, "Expected exactly 1 record for key '{$key}'");
+        }
     }
 }

@@ -239,14 +239,20 @@ class DatabaseHandler extends ArrayHandler
 
         $time = Time::now()->format('Y-m-d H:i:s');
 
-        // Separate deletes from upserts
+        // Separate deletes from upserts and prepare for database operations
         $deletes = [];
         $upserts = [];
 
         foreach ($this->pendingProperties as $info) {
             if ($info['delete']) {
-                $deletes[] = $info;
+                // Prepare delete row with correct database column names
+                $deletes[] = [
+                    'class'   => $info['class'],
+                    'key'     => $info['property'],
+                    'context' => $info['context'],
+                ];
             } else {
+                // Prepare upsert row with correct database column names
                 $upserts[] = [
                     'class'      => $info['class'],
                     'key'        => $info['property'],
@@ -262,31 +268,56 @@ class DatabaseHandler extends ArrayHandler
         try {
             $this->db->transStart();
 
-            // Batch upsert all non-delete operations
+            // Handle upserts: fetch existing records matching our pending data
             if ($upserts !== []) {
-                $this->builder->upsertBatch($upserts);
+                // Build query to fetch only the specific records we need
+                $this->buildOrWhereConditions($upserts, 'class', 'key', 'context');
+
+                $existing = $this->builder->get()->getResultArray();
+
+                // Build a map of existing records for quick lookup
+                $existingMap = [];
+
+                foreach ($existing as $row) {
+                    $key               = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
+                    $existingMap[$key] = $row['id'];
+                }
+
+                // Separate into inserts and updates
+                $inserts = [];
+                $updates = [];
+
+                foreach ($upserts as $row) {
+                    $key = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
+
+                    if (isset($existingMap[$key])) {
+                        // Record exists - prepare for update
+                        $updates[] = [
+                            'id'         => $existingMap[$key],
+                            'value'      => $row['value'],
+                            'type'       => $row['type'],
+                            'updated_at' => $row['updated_at'],
+                        ];
+                    } else {
+                        // New record - prepare for insert
+                        $inserts[] = $row;
+                    }
+                }
+
+                // Batch insert new records
+                if ($inserts !== []) {
+                    $this->builder->insertBatch($inserts);
+                }
+
+                // Batch update existing records
+                if ($updates !== []) {
+                    $this->builder->updateBatch($updates, 'id');
+                }
             }
 
             // Batch delete all delete operations
             if ($deletes !== []) {
-                $this->builder->groupStart();
-
-                foreach ($deletes as $i => $info) {
-                    if ($i > 0) {
-                        $this->builder->orGroupStart();
-                    } else {
-                        $this->builder->groupStart();
-                    }
-
-                    $this->builder
-                        ->where('class', $info['class'])
-                        ->where('key', $info['property'])
-                        ->where('context', $info['context']);
-
-                    $this->builder->groupEnd();
-                }
-
-                $this->builder->groupEnd();
+                $this->buildOrWhereConditions($deletes, 'class', 'key', 'context');
 
                 $this->builder->delete();
             }
@@ -295,13 +326,38 @@ class DatabaseHandler extends ArrayHandler
 
             if ($this->db->transStatus() === false) {
                 log_message('error', 'Failed to persist pending properties to database.');
-
-                return;
             }
 
             $this->pendingProperties = [];
         } catch (DatabaseException $e) {
             log_message('error', 'Failed to persist pending properties: ' . $e->getMessage());
+
+            $this->pendingProperties = [];
+        }
+    }
+
+    /**
+     * Builds a composite key for lookup purposes.
+     */
+    private function buildCompositeKey(string $class, string $key, ?string $context): string
+    {
+        return $class . '::' . $key . ($context === null ? '' : '::' . $context);
+    }
+
+    /**
+     * Builds OR WHERE conditions for multiple rows.
+     */
+    private function buildOrWhereConditions(array $rows, string $classKey, string $keyKey, string $contextKey): void
+    {
+        foreach ($rows as $row) {
+            $this->builder->orGroupStart();
+
+            $this->builder
+                ->where($classKey, $row[$classKey])
+                ->where($keyKey, $row[$keyKey])
+                ->where($contextKey, $row[$contextKey]);
+
+            $this->builder->groupEnd();
         }
     }
 }

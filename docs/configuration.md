@@ -29,7 +29,8 @@ public $handlers = ['database'];
 ### Deferred writes
 
 Handlers like `database` and `file` support deferred writes. When `deferWrites` is enabled, multiple `set()` and `forget()` calls
-are batched into the minimum number of database calls or file writes. The actual changes happen during the `post_system` event.
+are batched and persisted efficiently at the end of the request during the `post_system` event. This minimizes the number of
+database queries or file I/O operations, improving performance for write-heavy operations.
 
 ### Multiple handlers
 
@@ -80,16 +81,18 @@ public $database = [
 
 **Deferred Writes**
 
-When `deferWrites` is enabled, multiple `set()` or `forget()` calls are batched into a single database transaction at the end of the request. This significantly reduces database queries:
+When `deferWrites` is enabled, multiple `set()` or `forget()` calls are batched and persisted in a single transaction at the end of the request. This significantly reduces database queries:
 
 ```php
-// With deferWrites = false: 3 separate queries (INSERT/UPDATE)
+// With deferWrites = false: 1 SELECT (hydrates all settings for context) + 3 separate INSERT/UPDATE queries
 $settings->set('Example.prop1', 'value1');
 $settings->set('Example.prop2', 'value2');
 $settings->set('Example.prop3', 'value3');
 
-// With deferWrites = true: 1 query updating 3 properties at the end of the request
+// With deferWrites = true: 1 SELECT + 1 INSERT batch + 1 UPDATE batch (all batched at end of request)
 ```
+
+The deferred approach is especially beneficial when updating existing records or performing many operations in a single request.
 
 ---
 
@@ -123,13 +126,15 @@ public $file = [
 When `deferWrites` is enabled, multiple `set()` or `forget()` calls to the same class are batched into a single file write at the end of the request. This significantly reduces I/O operations:
 
 ```php
-// With deferWrites = false: 3 file writes
+// With deferWrites = false: 1 file read (hydrates all settings for class) + 3 separate file writes
 $settings->set('Example.prop1', 'value1');
 $settings->set('Example.prop2', 'value2');
 $settings->set('Example.prop3', 'value3');
 
-// With deferWrites = true: 1 file write at end of request
+// With deferWrites = true: 1 file read + 1 file write (all changes batched at end of request)
 ```
+
+The deferred approach is especially beneficial when updating multiple properties in the same class.
 
 ---
 
