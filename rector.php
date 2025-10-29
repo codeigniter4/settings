@@ -82,7 +82,7 @@ return static function (RectorConfig $rectorConfig): void {
         // May load view files directly when detecting classes
         StringClassNameToClassConstantRector::class,
 
-        RemoveNullArgOnNullDefaultParamRector::class
+        RemoveNullArgOnNullDefaultParamRector::class,
     ]);
     $rectorConfig->rule(SimplifyUselessVariableRector::class);
     $rectorConfig->rule(RemoveAlwaysElseRector::class);
