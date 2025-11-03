@@ -2,6 +2,7 @@
 
 namespace CodeIgniter\Settings;
 
+use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Settings\Config\Settings as SettingsConfig;
 use CodeIgniter\Settings\Handlers\BaseHandler;
 use InvalidArgumentException;
@@ -160,6 +161,8 @@ class Settings
     /**
      * Given a key in class.property syntax, will split the values
      * and determine the fully qualified class name, if possible.
+     *
+     * @return array{string, string, BaseConfig|null}
      */
     private function prepareClassAndProperty(string $key): array
     {

@@ -41,6 +41,8 @@ class FileHandler extends ArrayHandler
         if (! is_writable($this->path)) {
             throw new RuntimeException('Settings directory is not writable: ' . $this->path);
         }
+
+        $this->setupDeferredWrites($this->config->file['deferWrites'] ?? false);
     }
 
     /**
@@ -83,8 +85,16 @@ class FileHandler extends ArrayHandler
         // Update in-memory storage first
         $this->setStored($class, $property, $value, $context);
 
-        // Persist to disk with file locking
-        $this->persist($class, $context);
+        if ($this->deferWrites) {
+            $this->markPending($class, $property, $value, $context);
+        } else {
+            // For immediate writes, persist only this specific property change
+            $this->persist($class, $context, [[
+                'property' => $property,
+                'value'    => $value,
+                'delete'   => false,
+            ]]);
+        }
     }
 
     /**
@@ -102,8 +112,16 @@ class FileHandler extends ArrayHandler
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
 
-        // Persist to disk with file locking
-        $this->persist($class, $context);
+        if ($this->deferWrites) {
+            $this->markPending($class, $property, null, $context, true);
+        } else {
+            // For immediate writes, persist only this specific property deletion
+            $this->persist($class, $context, [[
+                'property' => $property,
+                'value'    => null,
+                'delete'   => true,
+            ]]);
+        }
     }
 
     /**
@@ -219,12 +237,14 @@ class FileHandler extends ArrayHandler
     }
 
     /**
-     * Persists current in-memory settings for a class+context to disk.
-     * Uses file locking to prevent race conditions during concurrent writes.
+     * Persists specific property changes to disk.
+     * Used for both immediate and deferred writes.
+     *
+     * @param list<array{property: string, value: mixed, delete: bool}> $changes Array of property changes to apply
      *
      * @throws RuntimeException For file write failures
      */
-    private function persist(string $class, ?string $context): void
+    private function persist(string $class, ?string $context, array $changes): void
     {
         $filePath = $this->getFilePath($class, $context);
 
@@ -261,13 +281,23 @@ class FileHandler extends ArrayHandler
                 }
             }
 
-            // Merge our changes with current state
-            $ourData    = $this->extractDataForContext($class, $context);
-            $mergedData = array_merge($currentData, $ourData);
+            // Apply all pending changes
+            foreach ($changes as $change) {
+                if ($change['delete']) {
+                    // Explicitly delete this property
+                    unset($currentData[$change['property']]);
+                } else {
+                    // Set or update this property
+                    $currentData[$change['property']] = [
+                        'value' => $change['value'],
+                        'type'  => gettype($change['value']),
+                    ];
+                }
+            }
 
             // Generate PHP file content
             $content = '<?php' . PHP_EOL . PHP_EOL;
-            $content .= 'return ' . var_export($mergedData, true) . ';' . PHP_EOL;
+            $content .= 'return ' . var_export($currentData, true) . ';' . PHP_EOL;
 
             // Write file
             if (file_put_contents($filePath, $content) === false) {
@@ -282,23 +312,29 @@ class FileHandler extends ArrayHandler
     }
 
     /**
-     * Extracts settings data for a specific class+context from in-memory storage.
-     *
-     * @return array<string,array>
+     * Persists all pending properties to disk.
+     * Called automatically at the end of request via post_system
+     * event when deferWrites is enabled.
      */
-    private function extractDataForContext(string $class, ?string $context): array
+    public function persistPendingProperties(): void
     {
-        $data       = [];
-        $storedData = $this->getAllStored($class, $context);
-
-        foreach ($storedData as $property => $valueData) {
-            $data[$property] = [
-                'value' => $valueData[0],
-                'type'  => $valueData[1],
-            ];
+        if ($this->pendingProperties === []) {
+            return;
         }
 
-        return $data;
+        // Group pending properties by class+context using parent helper
+        $grouped = $this->getPendingPropertiesGrouped();
+
+        // Persist each class+context group
+        foreach ($grouped as $group) {
+            try {
+                $this->persist($group['class'], $group['context'], $group['changes']);
+            } catch (RuntimeException $e) {
+                log_message('error', 'Failed to persist pending properties for ' . $group['class'] . ': ' . $e->getMessage());
+            }
+        }
+
+        $this->pendingProperties = [];
     }
 
     /**

@@ -63,6 +63,18 @@ abstract class BaseHandler
     }
 
     /**
+     * All handlers that support deferWrites MUST support this method.
+     *
+     * @return void
+     *
+     * @throws RuntimeException
+     */
+    public function persistPendingProperties()
+    {
+        throw new RuntimeException('PersistPendingProperties method not implemented for current Settings handler.');
+    }
+
+    /**
      * Takes care of converting some item types so they can be safely
      * stored and re-hydrated into the config files.
      *
