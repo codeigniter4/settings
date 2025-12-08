@@ -126,17 +126,18 @@ class ArrayHandler extends BaseHandler
             }
         }
 
-        if($properties === null)
+        if ($properties === null) {
             return null;
+        }
 
-       if($class === null) {
-            foreach($properties as &$c) {
-                foreach($c as &$p) {
+        if ($class === null) {
+            foreach ($properties as &$c) {
+                foreach ($c as &$p) {
                     $p = $this->parseValue(...$p);
                 }
             }
         } else {
-            foreach($properties as &$p) {
+            foreach ($properties as &$p) {
                 $p = $this->parseValue(...$p);
             }
         }

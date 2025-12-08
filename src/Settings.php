@@ -76,17 +76,17 @@ class Settings
      */
     public function getAll(?string $key = null, ?string $context = null): array
     {
-        if($key !== null) {
-            [$class,,] = $this->prepareClassAndProperty($key . ".");
+        if ($key !== null) {
+            [$class] = $this->prepareClassAndProperty($key . '.');
         } else {
             $class = null;
         }
 
-        $properties = array();
+        $properties = [];
 
         // Add handlers
         foreach ($this->handlers as $handler) {
-            $properties[get_class($handler)] = $handler->getAll($class, $context);
+            $properties[$handler::class] = $handler->getAll($class, $context);
         }
 
         return $properties;
