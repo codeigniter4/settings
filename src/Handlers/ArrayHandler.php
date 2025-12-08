@@ -54,6 +54,11 @@ class ArrayHandler extends BaseHandler
         return $this->getStored($class, $property, $context);
     }
 
+    public function getAll(?string $class, ?string $context = null)
+    {
+        return $this->getAllStored($class, $context);
+    }
+
     public function set(string $class, string $property, $value = null, ?string $context = null)
     {
         $this->setStored($class, $property, $value, $context);
@@ -96,6 +101,47 @@ class ArrayHandler extends BaseHandler
         return $context === null
             ? $this->parseValue(...$this->general[$class][$property])
             : $this->parseValue(...$this->contexts[$context][$class][$property]);
+    }
+
+    /**
+     * Retrieves all values from storage.
+     *
+     * @return mixed|null
+     */
+    protected function getAllStored(?string $class, ?string $context)
+    {
+        $properties = null;
+
+        if ($context === null) {
+            if ($class === null) {
+                $properties = $this->general;
+            } elseif (isset($this->general[$class])) {
+                $properties = $this->general[$class];
+            }
+        } elseif (isset($this->contexts[$context])) {
+            if ($class === null) {
+                $properties = $this->contexts[$context];
+            } elseif (isset($this->contexts[$context][$class])) {
+                $properties = $this->contexts[$context][$class];
+            }
+        }
+
+        if($properties === null)
+            return null;
+
+       if($class === null) {
+            foreach($properties as &$c) {
+                foreach($c as &$p) {
+                    $p = $this->parseValue(...$p);
+                }
+            }
+        } else {
+            foreach($properties as &$p) {
+                $p = $this->parseValue(...$p);
+            }
+        }
+
+        return $properties;
     }
 
     /**

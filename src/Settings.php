@@ -71,6 +71,28 @@ class Settings
     }
 
     /**
+     * Retrieve all values from any handler
+     * file.arg.optionalArg
+     */
+    public function getAll(?string $key = null, ?string $context = null): array
+    {
+        if($key !== null) {
+            [$class,,] = $this->prepareClassAndProperty($key . ".");
+        } else {
+            $class = null;
+        }
+
+        $properties = array();
+
+        // Add handlers
+        foreach ($this->handlers as $handler) {
+            $properties[get_class($handler)] = $handler->getAll($class, $context);
+        }
+
+        return $properties;
+    }
+
+    /**
      * Save a value to the writable handler for later retrieval.
      *
      * @param mixed $value

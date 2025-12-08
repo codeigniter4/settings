@@ -19,6 +19,13 @@ abstract class BaseHandler
     abstract public function get(string $class, string $property, ?string $context = null);
 
     /**
+     * Returns all values from the handler, if stored.
+     *
+     * @return mixed
+     */
+    abstract public function getAll(?string $class, ?string $context = null);
+
+    /**
      * If the Handler supports saving values, it
      * MUST override this method to provide that functionality.
      * Not all Handlers will support writing values.

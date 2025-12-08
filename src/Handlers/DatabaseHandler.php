@@ -70,6 +70,16 @@ class DatabaseHandler extends ArrayHandler
     }
 
     /**
+     * Retrieve all values from the database.
+     *
+     * @return mixed|null
+     */
+    public function getAll(?string $class, ?string $context = null)
+    {
+        return $this->getAllStored($class, $context);
+    }
+
+    /**
      * Stores values into the database for later retrieval.
      *
      * @param mixed $value
