@@ -17,7 +17,7 @@
     ],
     "homepage": "https://github.com/codeigniter4/settings",
     "require": {
-        "php": "^8.1"
+        "php": "^8.2"
     },
     "require-dev": {
         "codeigniter4/devkit": "^1.3",
