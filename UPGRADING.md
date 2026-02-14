@@ -1,5 +1,11 @@
 # Upgrade Guide
 
+## Version 2.2.0 to 2.3.0
+
+* The minimum required version of CodeIgniter is now `4.3` and PHP `8.2`.
+* All source files now declare `strict_types=1`.
+* `BaseHandler` methods `set()`, `forget()`, `flush()`, and `persistPendingProperties()` now have `void` return types. Any custom handler extending `BaseHandler` must update its method signatures to include `: void`.
+
 ## Version 1 to 2
 ***
 

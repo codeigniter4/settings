@@ -42,7 +42,13 @@ use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 use Rector\ValueObject\PhpVersion;
 
 return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->sets([SetList::DEAD_CODE, LevelSetList::UP_TO_PHP_74, PHPUnitSetList::PHPUNIT_80]);
+    $rectorConfig->sets([
+        SetList::DEAD_CODE,
+        LevelSetList::UP_TO_PHP_82,
+        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_100,
+    ]);
+
     $rectorConfig->parallel();
     // The paths to refactor (can also be supplied with CLI arguments)
     $rectorConfig->paths([
@@ -65,7 +71,7 @@ return static function (RectorConfig $rectorConfig): void {
     }
 
     // Set the target version for refactoring
-    $rectorConfig->phpVersion(PhpVersion::PHP_74);
+    $rectorConfig->phpVersion(PhpVersion::PHP_82);
 
     // Auto-import fully qualified class names
     $rectorConfig->importNames();

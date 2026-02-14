@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Commands;
 
 use CodeIgniter\CLI\BaseCommand;
@@ -12,7 +14,7 @@ class ClearSettings extends BaseCommand
     protected $name        = 'settings:clear';
     protected $description = 'Clears all settings from persistent storage.';
 
-    public function run(array $params)
+    public function run(array $params): void
     {
         $config   = config('Settings');
         $handlers = $this->getHandlerNames($config);

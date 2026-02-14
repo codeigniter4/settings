@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Handlers;
 
 use CodeIgniter\Settings\Config\Settings;
@@ -22,9 +24,9 @@ class FileHandler extends ArrayHandler
     /**
      * Base path where settings files are stored.
      */
-    private string $path;
+    private readonly string $path;
 
-    private Settings $config;
+    private readonly Settings $config;
 
     /**
      * Stores the configured file path and ensures it exists.
@@ -74,11 +76,9 @@ class FileHandler extends ArrayHandler
      *
      * @param mixed $value
      *
-     * @return void
-     *
      * @throws RuntimeException For file write failures
      */
-    public function set(string $class, string $property, $value = null, ?string $context = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null): void
     {
         $this->hydrate($class, $context);
 
@@ -101,11 +101,9 @@ class FileHandler extends ArrayHandler
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
      *
-     * @return void
-     *
      * @throws RuntimeException For file write failures
      */
-    public function forget(string $class, string $property, ?string $context = null)
+    public function forget(string $class, string $property, ?string $context = null): void
     {
         $this->hydrate($class, $context);
 
@@ -128,11 +126,9 @@ class FileHandler extends ArrayHandler
      * Deletes all settings files from persistent storage
      * and clears the local cache.
      *
-     * @return void
-     *
      * @throws RuntimeException For file deletion failures
      */
-    public function flush()
+    public function flush(): void
     {
         // Delete all .php files in main directory (null context files)
         $files = glob($this->path . '*.php', GLOB_NOSORT);
