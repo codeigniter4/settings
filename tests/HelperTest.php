@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use CodeIgniter\Settings\Settings;
@@ -20,12 +22,12 @@ final class HelperTest extends TestCase
         helper(['setting']);
     }
 
-    public function testReturnsServiceByDefault()
+    public function testReturnsServiceByDefault(): void
     {
         $this->assertInstanceOf(Settings::class, setting());
     }
 
-    public function testThrowsExceptionWithInvalidField()
+    public function testThrowsExceptionWithInvalidField(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('$key must contain both the class and field name, i.e. Foo.bar');
@@ -33,7 +35,7 @@ final class HelperTest extends TestCase
         setting('Foobar');
     }
 
-    public function testSetsNull()
+    public function testSetsNull(): void
     {
         setting('Foo.bam', null);
 
@@ -41,14 +43,14 @@ final class HelperTest extends TestCase
         $this->assertNull(setting('Foo.bam'));
     }
 
-    public function testReturnsValueDotArray()
+    public function testReturnsValueDotArray(): void
     {
         service('settings')->set('Foo.bar', 'baz');
 
         $this->assertSame('baz', setting('Foo.bar'));
     }
 
-    public function testSettingValueDotArray()
+    public function testSettingValueDotArray(): void
     {
         service('settings')->set('Foo.bar', 'baz');
 

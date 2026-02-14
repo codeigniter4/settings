@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Handlers;
 
 use CodeIgniter\Events\Events;
@@ -54,17 +56,17 @@ class ArrayHandler extends BaseHandler
         return $this->getStored($class, $property, $context);
     }
 
-    public function set(string $class, string $property, $value = null, ?string $context = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null): void
     {
         $this->setStored($class, $property, $value, $context);
     }
 
-    public function forget(string $class, string $property, ?string $context = null)
+    public function forget(string $class, string $property, ?string $context = null): void
     {
         $this->forgetStored($class, $property, $context);
     }
 
-    public function flush()
+    public function flush(): void
     {
         $this->general  = [];
         $this->contexts = [];
@@ -189,7 +191,7 @@ class ArrayHandler extends BaseHandler
         $this->deferWrites = $enabled;
 
         if ($this->deferWrites) {
-            Events::on('post_system', [$this, 'persistPendingProperties']);
+            Events::on('post_system', $this->persistPendingProperties(...));
         }
     }
 }

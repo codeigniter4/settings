@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use CodeIgniter\Settings\Config\Settings as ConfigSettings;
@@ -77,13 +79,13 @@ final class FileHandlerTest extends TestCase
         $handlers['file']->persistPendingProperties();
     }
 
-    public function testSetCreatesDirectory()
+    public function testSetCreatesDirectory(): void
     {
         $this->assertDirectoryExists($this->path);
         $this->assertIsWritable($this->path);
     }
 
-    public function testSetCreatesFile()
+    public function testSetCreatesFile(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
 
@@ -92,49 +94,49 @@ final class FileHandlerTest extends TestCase
         $this->assertStringEndsWith('.php', $files[0]);
     }
 
-    public function testSetStoresString()
+    public function testSetStoresString(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
 
         $this->assertSame('Foo', $this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresBoolTrue()
+    public function testSetStoresBoolTrue(): void
     {
         $this->settings->set('Example.siteName', true);
 
         $this->assertTrue($this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresBoolFalse()
+    public function testSetStoresBoolFalse(): void
     {
         $this->settings->set('Example.siteName', false);
 
         $this->assertFalse($this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresNull()
+    public function testSetStoresNull(): void
     {
         $this->settings->set('Example.siteName', null);
 
         $this->assertNull($this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresInteger()
+    public function testSetStoresInteger(): void
     {
         $this->settings->set('Example.siteName', 42);
 
         $this->assertSame(42, $this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresFloat()
+    public function testSetStoresFloat(): void
     {
         $this->settings->set('Example.siteName', 3.14);
 
-        $this->assertSame(3.14, $this->settings->get('Example.siteName'));
+        $this->assertEqualsWithDelta(3.14, $this->settings->get('Example.siteName'), PHP_FLOAT_EPSILON);
     }
 
-    public function testSetStoresArray()
+    public function testSetStoresArray(): void
     {
         $data = ['foo' => 'bar', 'baz' => 'qux'];
         $this->settings->set('Example.siteName', $data);
@@ -142,7 +144,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame($data, $this->settings->get('Example.siteName'));
     }
 
-    public function testSetStoresObject()
+    public function testSetStoresObject(): void
     {
         $data = (object) ['foo' => 'bar'];
         $this->settings->set('Example.siteName', $data);
@@ -151,7 +153,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame((array) $data, (array) $result);
     }
 
-    public function testSetUpdatesExistingValue()
+    public function testSetUpdatesExistingValue(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
         $this->assertSame('Foo', $this->settings->get('Example.siteName'));
@@ -164,19 +166,19 @@ final class FileHandlerTest extends TestCase
         $this->assertCount(1, $files);
     }
 
-    public function testGetNonExistentReturnsNull()
+    public function testGetNonExistentReturnsNull(): void
     {
         $this->assertNull($this->settings->get('Example.nonExistent'));
     }
 
-    public function testWorksWithoutConfigClass()
+    public function testWorksWithoutConfigClass(): void
     {
         $this->settings->set('Nada.siteName', 'Bar');
 
         $this->assertSame('Bar', $this->settings->get('Nada.siteName'));
     }
 
-    public function testForgetRemovesValue()
+    public function testForgetRemovesValue(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
         $this->assertSame('Foo', $this->settings->get('Example.siteName'));
@@ -187,7 +189,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
     }
 
-    public function testForgetWithNoStoredRecord()
+    public function testForgetWithNoStoredRecord(): void
     {
         // Should not throw an exception
         $this->settings->forget('Example.siteName');
@@ -196,7 +198,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
     }
 
-    public function testFlushRemovesAllFiles()
+    public function testFlushRemovesAllFiles(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
         $this->settings->set('Example.siteEmail', 'test@example.com');
@@ -213,7 +215,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
     }
 
-    public function testFlushRemovesFilesAndContextDirectories()
+    public function testFlushRemovesFilesAndContextDirectories(): void
     {
         // Create files in main directory (null context)
         $this->settings->set('Example.siteName', 'Main');
@@ -243,14 +245,14 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName', 'production'));
     }
 
-    public function testSetWithContext()
+    public function testSetWithContext(): void
     {
         $this->settings->set('Example.siteName', 'Banana', 'environment:test');
 
         $this->assertSame('Banana', $this->settings->get('Example.siteName', 'environment:test'));
     }
 
-    public function testSetUpdatesContextOnly()
+    public function testSetUpdatesContextOnly(): void
     {
         $this->settings->set('Example.siteName', 'Humpty');
         $this->settings->set('Example.siteName', 'Jack', 'context:male');
@@ -262,7 +264,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Jane', $this->settings->get('Example.siteName', 'context:female'));
     }
 
-    public function testContextFallsBackToGeneral()
+    public function testContextFallsBackToGeneral(): void
     {
         $this->settings->set('Example.siteName', 'General');
 
@@ -270,7 +272,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('General', $this->settings->get('Example.siteName', 'context:nonexistent'));
     }
 
-    public function testMultiplePropertiesInSameFile()
+    public function testMultiplePropertiesInSameFile(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
         $this->settings->set('Example.siteEmail', 'test@example.com');
@@ -283,7 +285,7 @@ final class FileHandlerTest extends TestCase
         $this->assertCount(1, $files);
     }
 
-    public function testDifferentClassesCreateDifferentFiles()
+    public function testDifferentClassesCreateDifferentFiles(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
         $this->settings->set('Nada.siteName', 'Bar');
@@ -296,7 +298,7 @@ final class FileHandlerTest extends TestCase
         $this->assertCount(2, $files);
     }
 
-    public function testPersistenceAcrossInstances()
+    public function testPersistenceAcrossInstances(): void
     {
         // Set value in first instance
         $this->settings->set('Example.siteName', 'Persistent');
@@ -312,7 +314,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Persistent', $newSettings->get('Example.siteName'));
     }
 
-    public function testFileContentIsValidPHP()
+    public function testFileContentIsValidPHP(): void
     {
         $this->settings->set('Example.siteName', 'Test');
 
@@ -320,6 +322,8 @@ final class FileHandlerTest extends TestCase
         $this->assertNotEmpty($files);
 
         $content = file_get_contents($files[0]);
+
+        $this->assertIsString($content);
 
         // Should start with PHP tag
         $this->assertStringStartsWith('<?php', $content);
@@ -332,7 +336,7 @@ final class FileHandlerTest extends TestCase
         $this->assertIsArray($data);
     }
 
-    public function testUsesClassNameForFilename()
+    public function testUsesClassNameForFilename(): void
     {
         $this->settings->set('Example.siteName', 'Test');
 
@@ -342,7 +346,7 @@ final class FileHandlerTest extends TestCase
         $this->assertFileExists($expectedFile);
     }
 
-    public function testContextUsesHashedSubdirectory()
+    public function testContextUsesHashedSubdirectory(): void
     {
         $context = 'environment:production';
         $this->settings->set('Example.siteName', 'Prod', $context);
@@ -354,7 +358,7 @@ final class FileHandlerTest extends TestCase
         $this->assertFileExists($expectedFile);
     }
 
-    public function testEmptyStringContextIsDifferentFromNull()
+    public function testEmptyStringContextIsDifferentFromNull(): void
     {
         // Set with null context
         $this->settings->set('Example.siteName', 'Null', null);
@@ -376,7 +380,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Empty', $this->settings->get('Example.siteName', ''));
     }
 
-    public function testConcurrentReadsDontLoadFileTwice()
+    public function testConcurrentReadsDontLoadFileTwice(): void
     {
         $this->settings->set('Example.siteName', 'Test');
         $this->settings->set('Example.siteEmail', 'test@example.com');
@@ -395,7 +399,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('test@example.com', $value2);
     }
 
-    public function testHasReturnsTrueWhenValueExists()
+    public function testHasReturnsTrueWhenValueExists(): void
     {
         $this->settings->set('Example.siteName', 'Test');
 
@@ -407,7 +411,7 @@ final class FileHandlerTest extends TestCase
         $this->assertTrue($handlers['file']->has('Tests\Support\Config\Example', 'siteName'));
     }
 
-    public function testHasReturnsFalseWhenValueDoesNotExist()
+    public function testHasReturnsFalseWhenValueDoesNotExist(): void
     {
         $reflection       = new ReflectionClass($this->settings);
         $handlersProperty = $reflection->getProperty('handlers');
@@ -420,7 +424,7 @@ final class FileHandlerTest extends TestCase
      * Simulate writes from different PHP processes (each with separate in-memory state)
      * by manually modifying the file between operations
      */
-    public function testMergesChangesFromDifferentProcesses()
+    public function testMergesChangesFromDifferentProcesses(): void
     {
         // Process A writes siteName
         $this->settings->set('Example.siteName', 'First');
@@ -457,7 +461,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Second', $newSettings->get('Example.siteTitle'));
     }
 
-    public function testDeferredWritesReducesFileWrites()
+    public function testDeferredWritesReducesFileWrites(): void
     {
         // Create new settings instance with deferred writes enabled
         $deferredSettings = $this->createDeferredSettings();
@@ -488,7 +492,7 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Value3', $data['siteTitle']['value']);
     }
 
-    public function testDeferredWritesForgetDeletesAfterPersist()
+    public function testDeferredWritesForgetDeletesAfterPersist(): void
     {
         // First, create a file with a value
         $this->settings->set('Example.siteName', 'InitialValue');
@@ -525,7 +529,7 @@ final class FileHandlerTest extends TestCase
         $this->assertArrayNotHasKey('siteName', $data);
     }
 
-    public function testDeferredWritesDeleteThenSet()
+    public function testDeferredWritesDeleteThenSet(): void
     {
         // First, create a file with a value
         $this->settings->set('Example.siteName', 'InitialValue');

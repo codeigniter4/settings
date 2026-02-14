@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Database\Migrations;
 
 use CodeIgniter\Database\Forge;
@@ -8,7 +10,7 @@ use CodeIgniter\Settings\Config\Settings;
 
 class CreateSettingsTable extends Migration
 {
-    private Settings $config;
+    private readonly Settings $config;
 
     public function __construct(?Forge $forge = null)
     {
@@ -18,7 +20,7 @@ class CreateSettingsTable extends Migration
         parent::__construct($forge);
     }
 
-    public function up()
+    public function up(): void
     {
         $this->forge->addField('id');
         $this->forge->addField([
@@ -51,7 +53,7 @@ class CreateSettingsTable extends Migration
         $this->forge->createTable($this->config->database['table'], true);
     }
 
-    public function down()
+    public function down(): void
     {
         $this->forge->dropTable($this->config->database['table']);
     }

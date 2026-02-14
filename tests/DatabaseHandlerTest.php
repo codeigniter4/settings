@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use CodeIgniter\I18n\Time;
@@ -25,11 +27,6 @@ final class DatabaseHandlerTest extends TestCase
     protected $table;
 
     /**
-     * @var string
-     */
-    protected $group;
-
-    /**
      * Ensures we are using the database handler.
      */
     protected function setUp(): void
@@ -42,7 +39,6 @@ final class DatabaseHandlerTest extends TestCase
 
         $this->settings = new Settings($config);
         $this->table    = $config->database['table'];
-        $this->group    = $config->database['group'];
     }
 
     /**
@@ -69,7 +65,7 @@ final class DatabaseHandlerTest extends TestCase
         $handlers['database']->persistPendingProperties();
     }
 
-    public function testSetInsertsNewRows()
+    public function testSetInsertsNewRows(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
 
@@ -81,7 +77,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testInvalidGroup()
+    public function testInvalidGroup(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -95,7 +91,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->settings->set('Example.siteName', true);
     }
 
-    public function testSetDefaultGroup()
+    public function testSetDefaultGroup(): void
     {
         /** @var \CodeIgniter\Settings\Config\Settings $config */
         $config                    = config('Settings');
@@ -114,7 +110,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertTrue($this->settings->get('Example.siteName'));
     }
 
-    public function testSetInsertsBoolTrue()
+    public function testSetInsertsBoolTrue(): void
     {
         $this->settings->set('Example.siteName', true);
 
@@ -128,7 +124,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertTrue($this->settings->get('Example.siteName'));
     }
 
-    public function testSetInsertsBoolFalse()
+    public function testSetInsertsBoolFalse(): void
     {
         $this->settings->set('Example.siteName', false);
 
@@ -142,7 +138,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertFalse($this->settings->get('Example.siteName'));
     }
 
-    public function testSetInsertsNull()
+    public function testSetInsertsNull(): void
     {
         $this->settings->set('Example.siteName', null);
 
@@ -156,7 +152,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertNull($this->settings->get('Example.siteName'));
     }
 
-    public function testSetInsertsArray()
+    public function testSetInsertsArray(): void
     {
         $data = ['foo' => 'bar'];
         $this->settings->set('Example.siteName', $data);
@@ -171,7 +167,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertSame($data, $this->settings->get('Example.siteName'));
     }
 
-    public function testSetInsertsObject()
+    public function testSetInsertsObject(): void
     {
         $data = (object) ['foo' => 'bar'];
         $this->settings->set('Example.siteName', $data);
@@ -186,7 +182,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertSame((array) $data, (array) $this->settings->get('Example.siteName'));
     }
 
-    public function testSetUpdatesExistingRows()
+    public function testSetUpdatesExistingRows(): void
     {
         $this->hasInDatabase($this->table, [
             'class'      => 'Tests\Support\Config\Example',
@@ -205,7 +201,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testWorksWithoutConfigClass()
+    public function testWorksWithoutConfigClass(): void
     {
         $this->settings->set('Nada.siteName', 'Bar');
 
@@ -218,7 +214,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertSame('Bar', $this->settings->get('Nada.siteName'));
     }
 
-    public function testForgetSuccess()
+    public function testForgetSuccess(): void
     {
         $this->hasInDatabase($this->table, [
             'class'      => 'Tests\Support\Config\Example',
@@ -236,7 +232,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testForgetWithNoStoredRecord()
+    public function testForgetWithNoStoredRecord(): void
     {
         $this->settings->forget('Example.siteName');
 
@@ -246,7 +242,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testFlush()
+    public function testFlush(): void
     {
         // Default value in the config file
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
@@ -267,7 +263,7 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
     }
 
-    public function testSetWithContext()
+    public function testSetWithContext(): void
     {
         $this->settings->set('Example.siteName', 'Banana', 'environment:test');
 
@@ -283,7 +279,7 @@ final class DatabaseHandlerTest extends TestCase
     /**
      * @see https://github.com/codeigniter4/settings/issues/20
      */
-    public function testSetUpdatesContextOnly()
+    public function testSetUpdatesContextOnly(): void
     {
         $this->settings->set('Example.siteName', 'Humpty');
         $this->settings->set('Example.siteName', 'Jack', 'context:male');
@@ -314,7 +310,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testDeferredWritesReducesDatabaseQueries()
+    public function testDeferredWritesReducesDatabaseQueries(): void
     {
         // Create new settings instance with deferred writes enabled
         $deferredSettings = $this->createDeferredSettings();
@@ -362,7 +358,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testDeferredWritesForgetDeletesAfterPersist()
+    public function testDeferredWritesForgetDeletesAfterPersist(): void
     {
         // First, insert a record to delete
         $this->settings->set('Example.siteName', 'InitialValue');
@@ -395,7 +391,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testDeferredWritesDeleteThenSet()
+    public function testDeferredWritesDeleteThenSet(): void
     {
         // First, insert a record
         $this->settings->set('Example.siteName', 'InitialValue');
@@ -431,7 +427,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testNoDuplicatesWhenUpdatingExistingRecords()
+    public function testNoDuplicatesWhenUpdatingExistingRecords(): void
     {
         // Pre-populate database with existing records
         $this->settings->set('Example.siteName', 'InitialValue1');
@@ -493,7 +489,7 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
-    public function testNoDuplicatesWithMixedNewAndExistingRecords()
+    public function testNoDuplicatesWithMixedNewAndExistingRecords(): void
     {
         // Pre-populate database with some existing records
         $this->settings->set('Example.siteName', 'ExistingValue');

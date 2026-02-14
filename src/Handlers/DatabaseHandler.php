@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Handlers;
 
 use CodeIgniter\Database\BaseBuilder;
@@ -18,12 +20,12 @@ class DatabaseHandler extends ArrayHandler
     /**
      * The DB connection for the Settings.
      */
-    private BaseConnection $db;
+    private readonly BaseConnection $db;
 
     /**
      * The Query Builder for the Settings table.
      */
-    private BaseBuilder $builder;
+    private readonly BaseBuilder $builder;
 
     /**
      * Array of contexts that have been stored.
@@ -32,7 +34,7 @@ class DatabaseHandler extends ArrayHandler
      */
     private array $hydrated = [];
 
-    private Settings $config;
+    private readonly Settings $config;
 
     /**
      * Stores the configured database table.
@@ -74,11 +76,9 @@ class DatabaseHandler extends ArrayHandler
      *
      * @param mixed $value
      *
-     * @return void
-     *
      * @throws RuntimeException For database failures
      */
-    public function set(string $class, string $property, $value = null, ?string $context = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null): void
     {
         if ($this->deferWrites) {
             $this->markPending($class, $property, $value, $context);
@@ -137,10 +137,8 @@ class DatabaseHandler extends ArrayHandler
     /**
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
-     *
-     * @return void
      */
-    public function forget(string $class, string $property, ?string $context = null)
+    public function forget(string $class, string $property, ?string $context = null): void
     {
         $this->hydrate($context);
 
@@ -175,10 +173,8 @@ class DatabaseHandler extends ArrayHandler
     /**
      * Deletes all records from persistent storage, if found,
      * and from the local cache.
-     *
-     * @return void
      */
-    public function flush()
+    public function flush(): void
     {
         $this->builder->truncate();
 
@@ -228,10 +224,8 @@ class DatabaseHandler extends ArrayHandler
      * Persists all pending properties to the database.
      * Called automatically at the end of request via post_system
      * event when deferWrites is enabled.
-     *
-     * @return void
      */
-    public function persistPendingProperties()
+    public function persistPendingProperties(): void
     {
         if ($this->pendingProperties === []) {
             return;

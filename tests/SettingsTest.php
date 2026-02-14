@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use CodeIgniter\Settings\Settings;
@@ -11,7 +13,7 @@ use Tests\Support\TestCase;
  */
 final class SettingsTest extends TestCase
 {
-    public function testSettingsUsesParameter()
+    public function testSettingsUsesParameter(): void
     {
         $config           = config('Settings');
         $config->handlers = [];
@@ -22,7 +24,7 @@ final class SettingsTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    public function testServiceUsesConfig()
+    public function testServiceUsesConfig(): void
     {
         Services::resetSingle('settings');
 
@@ -35,17 +37,17 @@ final class SettingsTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    public function testSettingsGetsFromConfig()
+    public function testSettingsGetsFromConfig(): void
     {
         $this->assertSame(config('Example')->siteName, $this->settings->get('Example.siteName'));
     }
 
-    public function testSettingsNotFound()
+    public function testSettingsNotFound(): void
     {
         $this->assertSame(config('Example')->siteName, $this->settings->get('Example.siteName'));
     }
 
-    public function testGetWithContext()
+    public function testGetWithContext(): void
     {
         $this->settings->set('Example.siteName', 'NoContext');
         $this->settings->set('Example.siteName', 'YesContext', 'testing:true');
@@ -54,14 +56,14 @@ final class SettingsTest extends TestCase
         $this->assertSame('YesContext', $this->settings->get('Example.siteName', 'testing:true'));
     }
 
-    public function testGetWithoutContextUsesGlobal()
+    public function testGetWithoutContextUsesGlobal(): void
     {
         $this->settings->set('Example.siteName', 'NoContext');
 
         $this->assertSame('NoContext', $this->settings->get('Example.siteName', 'testing:true'));
     }
 
-    public function testForgetWithContext()
+    public function testForgetWithContext(): void
     {
         $this->settings->set('Example.siteName', 'Bar');
         $this->settings->set('Example.siteName', 'Amnesia', 'category:disease');

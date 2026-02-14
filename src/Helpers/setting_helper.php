@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use CodeIgniter\Settings\Settings;
 
 if (! function_exists('setting')) {

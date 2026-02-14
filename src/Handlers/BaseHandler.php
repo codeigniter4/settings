@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CodeIgniter\Settings\Handlers;
 
 use RuntimeException;
@@ -26,11 +28,9 @@ abstract class BaseHandler
      *
      * @param mixed $value
      *
-     * @return void
-     *
      * @throws RuntimeException
      */
-    public function set(string $class, string $property, $value = null, ?string $context = null)
+    public function set(string $class, string $property, $value = null, ?string $context = null): void
     {
         throw new RuntimeException('Set method not implemented for current Settings handler.');
     }
@@ -41,11 +41,9 @@ abstract class BaseHandler
      * Not all Handlers will support writing values.
      * Must throw RuntimeException for any failures.
      *
-     * @return void
-     *
      * @throws RuntimeException
      */
-    public function forget(string $class, string $property, ?string $context = null)
+    public function forget(string $class, string $property, ?string $context = null): void
     {
         throw new RuntimeException('Forget method not implemented for current Settings handler.');
     }
@@ -53,11 +51,9 @@ abstract class BaseHandler
     /**
      * All handlers MUST support flushing all values.
      *
-     * @return void
-     *
      * @throws RuntimeException
      */
-    public function flush()
+    public function flush(): void
     {
         throw new RuntimeException('Flush method not implemented for current Settings handler.');
     }
@@ -65,11 +61,9 @@ abstract class BaseHandler
     /**
      * All handlers that support deferWrites MUST support this method.
      *
-     * @return void
-     *
      * @throws RuntimeException
      */
-    public function persistPendingProperties()
+    public function persistPendingProperties(): void
     {
         throw new RuntimeException('PersistPendingProperties method not implemented for current Settings handler.');
     }

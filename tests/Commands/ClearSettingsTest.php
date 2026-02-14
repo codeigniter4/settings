@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Commands;
 
 use CodeIgniter\Test\CIUnitTestCase;
@@ -28,7 +30,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         CITestStreamFilter::removeErrorFilter();
     }
 
-    public function testSingleHandlerArray()
+    public function testSingleHandlerArray(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -46,7 +48,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('Settings cleared from array handler', $output);
     }
 
-    public function testSingleHandlerFile()
+    public function testSingleHandlerFile(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -64,7 +66,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('Settings cleared from file handler', $output);
     }
 
-    public function testMultipleHandlers()
+    public function testMultipleHandlers(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -82,7 +84,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('Settings cleared from array and file handlers', $output);
     }
 
-    public function testThreeHandlers()
+    public function testThreeHandlers(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -100,7 +102,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('file handler', $output);
     }
 
-    public function testNoWriteableHandlers()
+    public function testNoWriteableHandlers(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -118,7 +120,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('No handlers available to clear', $output);
     }
 
-    public function testEmptyHandlersArray()
+    public function testEmptyHandlersArray(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
@@ -135,7 +137,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('No handlers available to clear', $output);
     }
 
-    public function testUserCancelsOperation()
+    public function testUserCancelsOperation(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("n\n"); // User answers 'n' to prompt
@@ -154,7 +156,7 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringNotContainsString('Settings cleared', $output);
     }
 
-    public function testUserConfirmsOperation()
+    public function testUserConfirmsOperation(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n"); // User answers 'y' to prompt
@@ -173,20 +175,20 @@ final class ClearSettingsTest extends CIUnitTestCase
         $this->assertStringContainsString('Settings cleared from array handler', $output);
     }
 
-    public function testActuallyFlushesSettings()
+    public function testActuallyFlushesSettings(): void
     {
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
+
+        // Configure handler before getting service
+        $config           = config('Settings');
+        $config->handlers = ['array'];
 
         // Set some settings
         $settings = service('settings');
         $settings->set('Example.siteName', 'Test');
 
         $this->assertSame('Test', $settings->get('Example.siteName'));
-
-        // Run clear command
-        $config           = config('Settings');
-        $config->handlers = ['array'];
 
         command('settings:clear');
 
