@@ -53,7 +53,7 @@ extra:
 site_url: https://settings.codeigniter.com/
 repo_url: https://github.com/codeigniter4/settings
 edit_uri: edit/develop/docs/
-copyright: Copyright &copy; {year} CodeIgniter Foundation.
+copyright: Copyright &copy; 2021-{year} CodeIgniter Foundation.
 
 hooks:
   - docs/assets/hooks.py
