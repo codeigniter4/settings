@@ -180,15 +180,15 @@ final class ClearSettingsTest extends CIUnitTestCase
         PhpStreamWrapper::register();
         PhpStreamWrapper::setContent("y\n");
 
+        // Configure handler before getting service
+        $config           = config('Settings');
+        $config->handlers = ['array'];
+
         // Set some settings
         $settings = service('settings');
         $settings->set('Example.siteName', 'Test');
 
         $this->assertSame('Test', $settings->get('Example.siteName'));
-
-        // Run clear command
-        $config           = config('Settings');
-        $config->handlers = ['array'];
 
         command('settings:clear');
 
