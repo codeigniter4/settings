@@ -285,6 +285,67 @@ final class FileHandlerTest extends TestCase
         $this->assertCount(1, $files);
     }
 
+    public function testSetManyStoresMultiplePropertiesInSameFile(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+            'Example.siteTitle' => 'BatchTitle',
+        ]);
+
+        $this->assertSame('BatchName', $this->settings->get('Example.siteName'));
+        $this->assertSame('batch@example.com', $this->settings->get('Example.siteEmail'));
+        $this->assertSame('BatchTitle', $this->settings->get('Example.siteTitle'));
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+    }
+
+    public function testSetManyStoresDifferentClassesInDifferentFiles(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $this->assertSame('BatchName', $this->settings->get('Example.siteName'));
+        $this->assertSame('NadaName', $this->settings->get('Nada.siteName'));
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(2, $files);
+    }
+
+    public function testSetManyWithContext(): void
+    {
+        $context = 'environment:production';
+
+        $this->settings->setMany([
+            'Example.siteName'  => 'ContextName',
+            'Example.siteEmail' => 'context@example.com',
+        ], $context);
+
+        $this->assertSame('ContextName', $this->settings->get('Example.siteName', $context));
+        $this->assertSame('context@example.com', $this->settings->get('Example.siteEmail', $context));
+    }
+
+    public function testForgetManyRemovesMultipleProperties(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+            'Example.siteTitle' => 'BatchTitle',
+        ]);
+
+        $this->settings->forgetMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]);
+
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
+        $this->assertNull($this->settings->get('Example.siteEmail'));
+        $this->assertSame('BatchTitle', $this->settings->get('Example.siteTitle'));
+    }
+
     public function testDifferentClassesCreateDifferentFiles(): void
     {
         $this->settings->set('Example.siteName', 'Foo');
@@ -567,5 +628,55 @@ final class FileHandlerTest extends TestCase
         $data = include $files[0];
         $this->assertArrayHasKey('siteName', $data);
         $this->assertSame('NewValue', $data['siteName']['value']);
+    }
+
+    public function testDeferredSetManyPersistsAfterPersist(): void
+    {
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName'  => 'DeferredName',
+            'Example.siteEmail' => 'deferred@example.com',
+        ]);
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertEmpty($files);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+
+        $data = include $files[0];
+        $this->assertSame('DeferredName', $data['siteName']['value']);
+        $this->assertSame('deferred@example.com', $data['siteEmail']['value']);
+    }
+
+    public function testDeferredForgetManyDeletesAfterPersist(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+        ]);
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertCount(1, $files);
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->forgetMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]);
+
+        $data = include $files[0];
+        $this->assertArrayHasKey('siteName', $data);
+        $this->assertArrayHasKey('siteEmail', $data);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $data = include $files[0];
+        $this->assertArrayNotHasKey('siteName', $data);
+        $this->assertArrayNotHasKey('siteEmail', $data);
     }
 }

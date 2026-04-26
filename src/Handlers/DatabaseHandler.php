@@ -91,6 +91,35 @@ class DatabaseHandler extends ArrayHandler
     }
 
     /**
+     * Stores multiple values into the database for later retrieval.
+     *
+     * @param list<array{class: string, property: string, value: mixed}> $settings
+     *
+     * @throws RuntimeException For database failures
+     */
+    public function setMany(array $settings, ?string $context = null): void
+    {
+        if ($settings === []) {
+            return;
+        }
+
+        if ($this->deferWrites) {
+            foreach ($settings as $setting) {
+                $this->markPending($setting['class'], $setting['property'], $setting['value'], $context);
+                $this->setStored($setting['class'], $setting['property'], $setting['value'], $context);
+            }
+
+            return;
+        }
+
+        $this->persistRows($this->prepareUpsertRows($settings, $context), []);
+
+        foreach ($settings as $setting) {
+            $this->setStored($setting['class'], $setting['property'], $setting['value'], $context);
+        }
+    }
+
+    /**
      * Persists a single property to the database.
      *
      * @param mixed $value
@@ -150,6 +179,36 @@ class DatabaseHandler extends ArrayHandler
 
         // Delete from local storage
         $this->forgetStored($class, $property, $context);
+    }
+
+    /**
+     * Deletes multiple records from persistent storage, if found,
+     * and from the local cache.
+     *
+     * @param list<array{class: string, property: string}> $settings
+     */
+    public function forgetMany(array $settings, ?string $context = null): void
+    {
+        if ($settings === []) {
+            return;
+        }
+
+        $this->hydrate($context);
+
+        if ($this->deferWrites) {
+            foreach ($settings as $setting) {
+                $this->markPending($setting['class'], $setting['property'], null, $context, true);
+                $this->forgetStored($setting['class'], $setting['property'], $context);
+            }
+
+            return;
+        }
+
+        $this->persistRows([], $this->prepareDeleteRows($settings, $context));
+
+        foreach ($settings as $setting) {
+            $this->forgetStored($setting['class'], $setting['property'], $context);
+        }
     }
 
     /**
@@ -260,73 +319,133 @@ class DatabaseHandler extends ArrayHandler
         }
 
         try {
-            $this->db->transStart();
-
-            // Handle upserts: fetch existing records matching our pending data
-            if ($upserts !== []) {
-                // Build query to fetch only the specific records we need
-                $this->buildOrWhereConditions($upserts, 'class', 'key', 'context');
-
-                $existing = $this->builder->get()->getResultArray();
-
-                // Build a map of existing records for quick lookup
-                $existingMap = [];
-
-                foreach ($existing as $row) {
-                    $key               = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
-                    $existingMap[$key] = $row['id'];
-                }
-
-                // Separate into inserts and updates
-                $inserts = [];
-                $updates = [];
-
-                foreach ($upserts as $row) {
-                    $key = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
-
-                    if (isset($existingMap[$key])) {
-                        // Record exists - prepare for update
-                        $updates[] = [
-                            'id'         => $existingMap[$key],
-                            'value'      => $row['value'],
-                            'type'       => $row['type'],
-                            'updated_at' => $row['updated_at'],
-                        ];
-                    } else {
-                        // New record - prepare for insert
-                        $inserts[] = $row;
-                    }
-                }
-
-                // Batch insert new records
-                if ($inserts !== []) {
-                    $this->builder->insertBatch($inserts);
-                }
-
-                // Batch update existing records
-                if ($updates !== []) {
-                    $this->builder->updateBatch($updates, 'id');
-                }
-            }
-
-            // Batch delete all delete operations
-            if ($deletes !== []) {
-                $this->buildOrWhereConditions($deletes, 'class', 'key', 'context');
-
-                $this->builder->delete();
-            }
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                log_message('error', 'Failed to persist pending properties to database.');
-            }
+            $this->persistRows($upserts, $deletes);
 
             $this->pendingProperties = [];
-        } catch (DatabaseException $e) {
+        } catch (DatabaseException|RuntimeException $e) {
             log_message('error', 'Failed to persist pending properties: ' . $e->getMessage());
 
             $this->pendingProperties = [];
+        }
+    }
+
+    /**
+     * Prepares database rows for setting persistence.
+     *
+     * @param list<array{class: string, property: string, value: mixed}> $settings
+     *
+     * @return list<array{class: string, key: string, value: mixed, type: string, context: string|null, created_at: string, updated_at: string}>
+     */
+    private function prepareUpsertRows(array $settings, ?string $context): array
+    {
+        $time = Time::now()->format('Y-m-d H:i:s');
+        $rows = [];
+
+        foreach ($settings as $setting) {
+            $rows[] = [
+                'class'      => $setting['class'],
+                'key'        => $setting['property'],
+                'value'      => $this->prepareValue($setting['value']),
+                'type'       => gettype($setting['value']),
+                'context'    => $context,
+                'created_at' => $time,
+                'updated_at' => $time,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Prepares database rows for delete persistence.
+     *
+     * @param list<array{class: string, property: string}> $settings
+     *
+     * @return list<array{class: string, key: string, context: string|null}>
+     */
+    private function prepareDeleteRows(array $settings, ?string $context): array
+    {
+        $rows = [];
+
+        foreach ($settings as $setting) {
+            $rows[] = [
+                'class'   => $setting['class'],
+                'key'     => $setting['property'],
+                'context' => $context,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Persists prepared rows to the database.
+     *
+     * @param list<array{class: string, key: string, value: mixed, type: string, context: string|null, created_at: string, updated_at: string}> $upserts
+     * @param list<array{class: string, key: string, context: string|null}>                                                                     $deletes
+     */
+    private function persistRows(array $upserts, array $deletes): void
+    {
+        $this->db->transStart();
+
+        // Handle upserts: fetch existing records matching our pending data
+        if ($upserts !== []) {
+            // Build query to fetch only the specific records we need
+            $this->buildOrWhereConditions($upserts, 'class', 'key', 'context');
+
+            $existing = $this->builder->get()->getResultArray();
+
+            // Build a map of existing records for quick lookup
+            $existingMap = [];
+
+            foreach ($existing as $row) {
+                $key               = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
+                $existingMap[$key] = $row['id'];
+            }
+
+            // Separate into inserts and updates
+            $inserts = [];
+            $updates = [];
+
+            foreach ($upserts as $row) {
+                $key = $this->buildCompositeKey($row['class'], $row['key'], $row['context']);
+
+                if (isset($existingMap[$key])) {
+                    // Record exists - prepare for update
+                    $updates[] = [
+                        'id'         => $existingMap[$key],
+                        'value'      => $row['value'],
+                        'type'       => $row['type'],
+                        'updated_at' => $row['updated_at'],
+                    ];
+                } else {
+                    // New record - prepare for insert
+                    $inserts[] = $row;
+                }
+            }
+
+            // Batch insert new records
+            if ($inserts !== []) {
+                $this->builder->insertBatch($inserts);
+            }
+
+            // Batch update existing records
+            if ($updates !== []) {
+                $this->builder->updateBatch($updates, 'id');
+            }
+        }
+
+        // Batch delete all delete operations
+        if ($deletes !== []) {
+            $this->buildOrWhereConditions($deletes, 'class', 'key', 'context');
+
+            $this->builder->delete();
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            throw new RuntimeException('Failed to persist settings to database.');
         }
     }
 

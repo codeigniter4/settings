@@ -30,11 +30,30 @@ when retrieved.
 service('settings')->set('App.siteName', 'My Great Site');
 ```
 
+You can save multiple values with `setMany()`. This behaves like calling `set()` for each key/value pair,
+but allows supported handlers to persist the changes more efficiently.
+
+```php
+service('settings')->setMany([
+    'App.siteName'  => 'My Great Site',
+    'App.siteEmail' => 'support@example.com',
+]);
+```
+
 You can delete a value from the persistent storage with the `forget()` method. Since it is removed from the storage,
 it effectively resets itself back to the default value in config file, if any.
 
 ```php
 service('settings')->forget('App.siteName');
+```
+
+You can delete multiple values with `forgetMany()`.
+
+```php
+service('settings')->forgetMany([
+    'App.siteName',
+    'App.siteEmail',
+]);
 ```
 
 If you ever need to completely remove all settings from their persistent storage, you can use the `flush()` method. This immediately removes all settings from the database and the in-memory cache.
@@ -60,6 +79,16 @@ change the theme for all visitors to the site, so you need to provide the user a
 ```php
 $context = 'user:' . user_id();
 service('settings')->set('App.theme', 'dark', $context);
+```
+
+The same context can be applied to a batch of values:
+
+```php
+$context = 'user:' . user_id();
+service('settings')->setMany([
+    'App.theme' => 'dark',
+    'App.locale' => 'en',
+], $context);
 ```
 
 Now when your filter is determining which theme to apply it can check for the current user as the context:
@@ -91,9 +120,17 @@ setting('App.siteName', 'My Great Site');
 // Using the service through the helper
 $name = setting()->get('App.siteName');
 setting()->set('App.siteName', 'My Great Site');
+setting()->setMany([
+    'App.siteName'  => 'My Great Site',
+    'App.siteEmail' => 'support@example.com',
+]);
 
 // Forgetting a value
 setting()->forget('App.siteName');
+setting()->forgetMany([
+    'App.siteName',
+    'App.siteEmail',
+]);
 ```
 
 !!! Note

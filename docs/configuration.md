@@ -32,6 +32,9 @@ Handlers like `database` and `file` support deferred writes. When `deferWrites` 
 are batched and persisted efficiently at the end of the request during the `post_system` event. This minimizes the number of
 database queries or file I/O operations, improving performance for write-heavy operations.
 
+This is separate from the explicit `setMany()` and `forgetMany()` APIs. Batch APIs allow callers to group multiple settings in
+one method call, while deferred writes decide whether writes are persisted immediately or at the end of the request.
+
 ### Multiple handlers
 
 Example:
@@ -94,6 +97,16 @@ $settings->set('Example.prop3', 'value3');
 
 The deferred approach is especially beneficial when updating existing records or performing many operations in a single request.
 
+For explicit batches, use `setMany()` or `forgetMany()`:
+
+```php
+$settings->setMany([
+    'Example.prop1' => 'value1',
+    'Example.prop2' => 'value2',
+    'Example.prop3' => 'value3',
+]);
+```
+
 ---
 
 ## FileHandler
@@ -135,6 +148,16 @@ $settings->set('Example.prop3', 'value3');
 ```
 
 The deferred approach is especially beneficial when updating multiple properties in the same class.
+
+For explicit batches, use `setMany()` or `forgetMany()`:
+
+```php
+$settings->setMany([
+    'Example.prop1' => 'value1',
+    'Example.prop2' => 'value2',
+    'Example.prop3' => 'value3',
+]);
+```
 
 ---
 

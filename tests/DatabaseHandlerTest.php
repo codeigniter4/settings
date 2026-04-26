@@ -276,6 +276,113 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
+    public function testSetManyInsertsNewRows(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'    => 'BatchName',
+            'Example.siteEmail'   => 'batch@example.com',
+            'Example.siteTitle'   => 'BatchTitle',
+            'Example.siteEnabled' => true,
+        ]);
+
+        foreach ([
+            ['key' => 'siteName', 'value' => 'BatchName', 'type' => 'string'],
+            ['key' => 'siteEmail', 'value' => 'batch@example.com', 'type' => 'string'],
+            ['key' => 'siteTitle', 'value' => 'BatchTitle', 'type' => 'string'],
+            ['key' => 'siteEnabled', 'value' => '1', 'type' => 'boolean'],
+        ] as $expected) {
+            $this->seeInDatabase($this->table, [
+                'class' => 'Tests\Support\Config\Example',
+                'key'   => $expected['key'],
+                'value' => $expected['value'],
+                'type'  => $expected['type'],
+            ]);
+        }
+    }
+
+    public function testSetManyUpdatesExistingRowsWithoutDuplicates(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'InitialName',
+            'Example.siteEmail' => 'initial@example.com',
+        ]);
+
+        $this->settings->setMany([
+            'Example.siteName'  => 'UpdatedName',
+            'Example.siteEmail' => 'updated@example.com',
+            'Example.siteTitle' => 'NewTitle',
+        ]);
+
+        $totalCount = $this->db->table($this->table)
+            ->where('class', 'Tests\Support\Config\Example')
+            ->countAllResults();
+
+        $this->assertSame(3, $totalCount);
+
+        foreach ([
+            'siteName'  => 'UpdatedName',
+            'siteEmail' => 'updated@example.com',
+            'siteTitle' => 'NewTitle',
+        ] as $key => $value) {
+            $this->seeInDatabase($this->table, [
+                'class' => 'Tests\Support\Config\Example',
+                'key'   => $key,
+                'value' => $value,
+            ]);
+        }
+    }
+
+    public function testSetManyWithContext(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'ContextName',
+            'Example.siteEmail' => 'context@example.com',
+        ], 'environment:test');
+
+        $this->seeInDatabase($this->table, [
+            'class'   => 'Tests\Support\Config\Example',
+            'key'     => 'siteName',
+            'value'   => 'ContextName',
+            'context' => 'environment:test',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class'   => 'Tests\Support\Config\Example',
+            'key'     => 'siteEmail',
+            'value'   => 'context@example.com',
+            'context' => 'environment:test',
+        ]);
+
+        $this->assertSame('ContextName', $this->settings->get('Example.siteName', 'environment:test'));
+    }
+
+    public function testForgetManyDeletesRows(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+            'Example.siteTitle' => 'BatchTitle',
+        ]);
+
+        $this->settings->forgetMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteTitle',
+            'value' => 'BatchTitle',
+        ]);
+    }
+
     /**
      * @see https://github.com/codeigniter4/settings/issues/20
      */
@@ -307,6 +414,73 @@ final class DatabaseHandlerTest extends TestCase
             'value'   => 'Jack',
             'type'    => 'string',
             'context' => 'context:male',
+        ]);
+    }
+
+    public function testDeferredSetManyPersistsAfterPersist(): void
+    {
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName'  => 'DeferredName',
+            'Example.siteEmail' => 'deferred@example.com',
+        ]);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+        ]);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'DeferredName',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+            'value' => 'deferred@example.com',
+        ]);
+    }
+
+    public function testDeferredForgetManyDeletesAfterPersist(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+        ]);
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->forgetMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
+        ]);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteEmail',
         ]);
     }
 
