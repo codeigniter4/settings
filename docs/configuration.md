@@ -32,8 +32,10 @@ Handlers like `database` and `file` support deferred writes. When `deferWrites` 
 are batched and persisted efficiently at the end of the request during the `post_system` event. This minimizes the number of
 database queries or file I/O operations, improving performance for write-heavy operations.
 
-This is separate from the explicit `setMany()` and `forgetMany()` APIs. Batch APIs allow callers to group multiple settings in
-one method call, while deferred writes decide whether writes are persisted immediately or at the end of the request.
+!!! note
+    This is separate from the explicit `setMany()` and `forgetMany()` APIs. Batch APIs allow callers to group multiple settings
+    in one method call, while deferred writes decide whether writes are persisted immediately or at the end of the request.
+    The two features are independent and can be combined.
 
 ### Multiple handlers
 

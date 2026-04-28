@@ -355,6 +355,25 @@ final class DatabaseHandlerTest extends TestCase
         $this->assertSame('ContextName', $this->settings->get('Example.siteName', 'environment:test'));
     }
 
+    public function testSetManyStoresDifferentClasses(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'BatchName',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
+            'value' => 'NadaName',
+        ]);
+    }
+
     public function testForgetManyDeletesRows(): void
     {
         $this->settings->setMany([
@@ -380,6 +399,28 @@ final class DatabaseHandlerTest extends TestCase
             'class' => 'Tests\Support\Config\Example',
             'key'   => 'siteTitle',
             'value' => 'BatchTitle',
+        ]);
+    }
+
+    public function testForgetManyDeletesDifferentClasses(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $this->settings->forgetMany([
+            'Example.siteName',
+            'Nada.siteName',
+        ]);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
         ]);
     }
 
@@ -449,6 +490,38 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
+    public function testDeferredSetManyPersistsDifferentClassesAfterPersist(): void
+    {
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName' => 'DeferredName',
+            'Nada.siteName'    => 'DeferredNada',
+        ]);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
+        ]);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+            'value' => 'DeferredName',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
+            'value' => 'DeferredNada',
+        ]);
+    }
+
     public function testDeferredForgetManyDeletesAfterPersist(): void
     {
         $this->settings->setMany([
@@ -481,6 +554,41 @@ final class DatabaseHandlerTest extends TestCase
         $this->dontSeeInDatabase($this->table, [
             'class' => 'Tests\Support\Config\Example',
             'key'   => 'siteEmail',
+        ]);
+    }
+
+    public function testDeferredForgetManyDeletesDifferentClassesAfterPersist(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->forgetMany([
+            'Example.siteName',
+            'Nada.siteName',
+        ]);
+
+        $this->seeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->seeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
+        ]);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Tests\Support\Config\Example',
+            'key'   => 'siteName',
+        ]);
+        $this->dontSeeInDatabase($this->table, [
+            'class' => 'Nada',
+            'key'   => 'siteName',
         ]);
     }
 

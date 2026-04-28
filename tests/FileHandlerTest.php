@@ -69,6 +69,20 @@ final class FileHandlerTest extends TestCase
     }
 
     /**
+     * Creates a new Settings instance for reading persisted file values.
+     */
+    private function createSettings(): Settings
+    {
+        /** @var ConfigSettings $config */
+        $config                      = config('Settings');
+        $config->handlers            = ['file'];
+        $config->file['path']        = $this->path;
+        $config->file['deferWrites'] = false;
+
+        return new Settings($config);
+    }
+
+    /**
      * Manually triggers deferred writes for a Settings instance.
      */
     private function persistDeferredWrites(Settings $settings): void
@@ -344,6 +358,22 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
         $this->assertNull($this->settings->get('Example.siteEmail'));
         $this->assertSame('BatchTitle', $this->settings->get('Example.siteTitle'));
+    }
+
+    public function testForgetManyRemovesDifferentClasses(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $this->settings->forgetMany([
+            'Example.siteName',
+            'Nada.siteName',
+        ]);
+
+        $this->assertSame('Settings Test', $this->settings->get('Example.siteName'));
+        $this->assertNull($this->settings->get('Nada.siteName'));
     }
 
     public function testDifferentClassesCreateDifferentFiles(): void
@@ -652,6 +682,26 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('deferred@example.com', $data['siteEmail']['value']);
     }
 
+    public function testDeferredSetManyPersistsDifferentClassesAfterPersist(): void
+    {
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName' => 'DeferredName',
+            'Nada.siteName'    => 'DeferredNada',
+        ]);
+
+        $files = glob($this->path . '*.php', GLOB_NOSORT);
+        $this->assertEmpty($files);
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $settings = $this->createSettings();
+
+        $this->assertSame('DeferredName', $settings->get('Example.siteName'));
+        $this->assertSame('DeferredNada', $settings->get('Nada.siteName'));
+    }
+
     public function testDeferredForgetManyDeletesAfterPersist(): void
     {
         $this->settings->setMany([
@@ -678,5 +728,30 @@ final class FileHandlerTest extends TestCase
         $data = include $files[0];
         $this->assertArrayNotHasKey('siteName', $data);
         $this->assertArrayNotHasKey('siteEmail', $data);
+    }
+
+    public function testDeferredForgetManyDeletesDifferentClassesAfterPersist(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName' => 'BatchName',
+            'Nada.siteName'    => 'NadaName',
+        ]);
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->forgetMany([
+            'Example.siteName',
+            'Nada.siteName',
+        ]);
+
+        $this->assertSame('BatchName', $this->settings->get('Example.siteName'));
+        $this->assertSame('NadaName', $this->settings->get('Nada.siteName'));
+
+        $this->persistDeferredWrites($deferredSettings);
+
+        $settings = $this->createSettings();
+
+        $this->assertSame('Settings Test', $settings->get('Example.siteName'));
+        $this->assertNull($settings->get('Nada.siteName'));
     }
 }

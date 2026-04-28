@@ -386,6 +386,10 @@ class DatabaseHandler extends ArrayHandler
      */
     private function persistRows(array $upserts, array $deletes): void
     {
+        if ($upserts === [] && $deletes === []) {
+            return;
+        }
+
         $this->db->transStart();
 
         // Handle upserts: fetch existing records matching our pending data

@@ -90,6 +90,16 @@ final class SettingsTest extends TestCase
         $this->assertSame('FullName', $this->settings->get('Example.siteName'));
     }
 
+    public function testBatchMethodsAcceptEmptyArrays(): void
+    {
+        $this->settings->set('Example.siteName', 'ExistingName');
+
+        $this->settings->setMany([]);
+        $this->settings->forgetMany([]);
+
+        $this->assertSame('ExistingName', $this->settings->get('Example.siteName'));
+    }
+
     public function testGetWithoutContextUsesGlobal(): void
     {
         $this->settings->set('Example.siteName', 'NoContext');
