@@ -73,6 +73,24 @@ class Settings
     }
 
     /**
+     * Retrieve multiple values using the same behavior as get().
+     *
+     * @param list<string> $keys
+     *
+     * @return array<string, mixed>
+     */
+    public function getMany(array $keys, ?string $context = null): array
+    {
+        $settings = [];
+
+        foreach ($keys as $key) {
+            $settings[$key] = $this->get($key, $context);
+        }
+
+        return $settings;
+    }
+
+    /**
      * Save a value to the writable handler for later retrieval.
      *
      * @param mixed $value
