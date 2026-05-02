@@ -490,6 +490,30 @@ final class DatabaseHandlerTest extends TestCase
         ]);
     }
 
+    public function testDeferredSetReturnsPendingValueBeforePersist(): void
+    {
+        $this->settings->set('Example.siteName', 'StoredSingle');
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->set('Example.siteName', 'PendingSingle');
+
+        $this->assertSame('PendingSingle', $deferredSettings->get('Example.siteName'));
+    }
+
+    public function testDeferredSetManyReturnsPendingValueBeforePersist(): void
+    {
+        $this->settings->set('Example.siteName', 'StoredBatch');
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName' => 'PendingBatch',
+        ]);
+
+        $this->assertSame('PendingBatch', $deferredSettings->get('Example.siteName'));
+    }
+
     public function testDeferredSetManyPersistsDifferentClassesAfterPersist(): void
     {
         $deferredSettings = $this->createDeferredSettings();
