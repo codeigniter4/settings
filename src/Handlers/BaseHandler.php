@@ -36,6 +36,21 @@ abstract class BaseHandler
     }
 
     /**
+     * If the Handler supports saving values, it MAY override this method
+     * to provide optimized batch functionality.
+     *
+     * @param list<array{class: string, property: string, value: mixed}> $settings
+     *
+     * @throws RuntimeException
+     */
+    public function setMany(array $settings, ?string $context = null): void
+    {
+        foreach ($settings as $setting) {
+            $this->set($setting['class'], $setting['property'], $setting['value'], $context);
+        }
+    }
+
+    /**
      * If the Handler supports forgetting values, it
      * MUST override this method to provide that functionality.
      * Not all Handlers will support writing values.
@@ -46,6 +61,21 @@ abstract class BaseHandler
     public function forget(string $class, string $property, ?string $context = null): void
     {
         throw new RuntimeException('Forget method not implemented for current Settings handler.');
+    }
+
+    /**
+     * If the Handler supports forgetting values, it MAY override this method
+     * to provide optimized batch functionality.
+     *
+     * @param list<array{class: string, property: string}> $settings
+     *
+     * @throws RuntimeException
+     */
+    public function forgetMany(array $settings, ?string $context = null): void
+    {
+        foreach ($settings as $setting) {
+            $this->forget($setting['class'], $setting['property'], $context);
+        }
     }
 
     /**

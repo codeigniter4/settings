@@ -98,6 +98,45 @@ class FileHandler extends ArrayHandler
     }
 
     /**
+     * Stores multiple values into files for later retrieval.
+     *
+     * @param list<array{class: string, property: string, value: mixed}> $settings
+     *
+     * @throws RuntimeException For file write failures
+     */
+    public function setMany(array $settings, ?string $context = null): void
+    {
+        if ($settings === []) {
+            return;
+        }
+
+        $changesByClass = [];
+
+        foreach ($settings as $setting) {
+            $this->hydrate($setting['class'], $context);
+            $this->setStored($setting['class'], $setting['property'], $setting['value'], $context);
+
+            if ($this->deferWrites) {
+                $this->markPending($setting['class'], $setting['property'], $setting['value'], $context);
+            } else {
+                $changesByClass[$setting['class']][] = [
+                    'property' => $setting['property'],
+                    'value'    => $setting['value'],
+                    'delete'   => false,
+                ];
+            }
+        }
+
+        if ($this->deferWrites) {
+            return;
+        }
+
+        foreach ($changesByClass as $class => $changes) {
+            $this->persist($class, $context, $changes);
+        }
+    }
+
+    /**
      * Deletes the record from persistent storage, if found,
      * and from the local cache.
      *
@@ -119,6 +158,46 @@ class FileHandler extends ArrayHandler
                 'value'    => null,
                 'delete'   => true,
             ]]);
+        }
+    }
+
+    /**
+     * Deletes multiple records from persistent storage, if found,
+     * and from the local cache.
+     *
+     * @param list<array{class: string, property: string}> $settings
+     *
+     * @throws RuntimeException For file write failures
+     */
+    public function forgetMany(array $settings, ?string $context = null): void
+    {
+        if ($settings === []) {
+            return;
+        }
+
+        $changesByClass = [];
+
+        foreach ($settings as $setting) {
+            $this->hydrate($setting['class'], $context);
+            $this->forgetStored($setting['class'], $setting['property'], $context);
+
+            if ($this->deferWrites) {
+                $this->markPending($setting['class'], $setting['property'], null, $context, true);
+            } else {
+                $changesByClass[$setting['class']][] = [
+                    'property' => $setting['property'],
+                    'value'    => null,
+                    'delete'   => true,
+                ];
+            }
+        }
+
+        if ($this->deferWrites) {
+            return;
+        }
+
+        foreach ($changesByClass as $class => $changes) {
+            $this->persist($class, $context, $changes);
         }
     }
 

@@ -87,6 +87,36 @@ class Settings
     }
 
     /**
+     * Save multiple values to the writable handler for later retrieval.
+     *
+     * @param array<string, mixed> $settings
+     */
+    public function setMany(array $settings, ?string $context = null): void
+    {
+        if ($settings === []) {
+            return;
+        }
+
+        $prepared = [];
+
+        foreach ($settings as $key => $value) {
+            [$class, $property] = $this->prepareClassAndProperty($key);
+
+            $prepared[$class . '::' . $property] = [
+                'class'    => $class,
+                'property' => $property,
+                'value'    => $value,
+            ];
+        }
+
+        $prepared = array_values($prepared);
+
+        foreach ($this->getWriteHandlers() as $handler) {
+            $handler->setMany($prepared, $context);
+        }
+    }
+
+    /**
      * Removes a setting from the persistent storage,
      * effectively returning the value to the default value
      * found in the config file, if any.
@@ -97,6 +127,37 @@ class Settings
 
         foreach ($this->getWriteHandlers() as $handler) {
             $handler->forget($class, $property, $context);
+        }
+    }
+
+    /**
+     * Removes multiple settings from the persistent storage,
+     * effectively returning the values to the default values
+     * found in the config file, if any.
+     *
+     * @param list<string> $keys
+     */
+    public function forgetMany(array $keys, ?string $context = null): void
+    {
+        if ($keys === []) {
+            return;
+        }
+
+        $prepared = [];
+
+        foreach ($keys as $key) {
+            [$class, $property] = $this->prepareClassAndProperty($key);
+
+            $prepared[$class . '::' . $property] = [
+                'class'    => $class,
+                'property' => $property,
+            ];
+        }
+
+        $prepared = array_values($prepared);
+
+        foreach ($this->getWriteHandlers() as $handler) {
+            $handler->forgetMany($prepared, $context);
         }
     }
 
