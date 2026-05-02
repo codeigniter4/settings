@@ -682,6 +682,30 @@ final class FileHandlerTest extends TestCase
         $this->assertSame('deferred@example.com', $data['siteEmail']['value']);
     }
 
+    public function testDeferredSetReturnsPendingValueBeforePersist(): void
+    {
+        $this->settings->set('Example.siteName', 'FileStoredSingle');
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->set('Example.siteName', 'FilePendingSingle');
+
+        $this->assertSame('FilePendingSingle', $deferredSettings->get('Example.siteName'));
+    }
+
+    public function testDeferredSetManyReturnsPendingValueBeforePersist(): void
+    {
+        $this->settings->set('Example.siteName', 'FileStoredBatch');
+
+        $deferredSettings = $this->createDeferredSettings();
+
+        $deferredSettings->setMany([
+            'Example.siteName' => 'FilePendingBatch',
+        ]);
+
+        $this->assertSame('FilePendingBatch', $deferredSettings->get('Example.siteName'));
+    }
+
     public function testDeferredSetManyPersistsDifferentClassesAfterPersist(): void
     {
         $deferredSettings = $this->createDeferredSettings();
