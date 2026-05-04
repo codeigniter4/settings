@@ -24,6 +24,8 @@ $settings = service('settings')->getMany([
 ]);
 ```
 
+Unlike `get()`, which returns a single value, `getMany()` returns an array keyed by the exact setting names you requested.
+
 In this case we used the short class name, `App`, which the `config()` method automatically locates within the
 `app/Config` directory. If it was from a module, it would be found there. Either way, the fully qualified name
 is automatically detected by the Settings class to keep values separated from config files that may share the
