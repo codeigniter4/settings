@@ -15,6 +15,17 @@ To retrieve a config value use the `settings` service.
 $siteName = service('settings')->get('App.siteName');
 ```
 
+You can retrieve multiple values with `getMany()`. This behaves like calling `get()` for each key.
+
+```php
+$settings = service('settings')->getMany([
+    'App.siteName',
+    'App.siteEmail',
+]);
+```
+
+Unlike `get()`, which returns a single value, `getMany()` returns an array keyed by the exact setting names you requested.
+
 In this case we used the short class name, `App`, which the `config()` method automatically locates within the
 `app/Config` directory. If it was from a module, it would be found there. Either way, the fully qualified name
 is automatically detected by the Settings class to keep values separated from config files that may share the
@@ -119,6 +130,10 @@ setting('App.siteName', 'My Great Site');
 
 // Using the service through the helper
 $name = setting()->get('App.siteName');
+$settings = setting()->getMany([
+    'App.siteName',
+    'App.siteEmail',
+]);
 setting()->set('App.siteName', 'My Great Site');
 setting()->setMany([
     'App.siteName'  => 'My Great Site',

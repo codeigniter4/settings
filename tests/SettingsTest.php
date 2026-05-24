@@ -57,6 +57,70 @@ final class SettingsTest extends TestCase
         $this->assertSame('YesContext', $this->settings->get('Example.siteName', 'testing:true'));
     }
 
+    public function testGetManyReturnsMultipleValues(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+        ]);
+
+        $this->assertSame([
+            'Example.siteName'  => 'BatchName',
+            'Example.siteEmail' => 'batch@example.com',
+        ], $this->settings->getMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]));
+    }
+
+    public function testGetManyFallsBackToConfigValues(): void
+    {
+        $this->assertSame([
+            'Example.siteName'  => 'Settings Test',
+            'Example.siteEmail' => null,
+        ], $this->settings->getMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ]));
+    }
+
+    public function testGetManyWithContext(): void
+    {
+        $this->settings->setMany([
+            'Example.siteName'  => 'NoContext',
+            'Example.siteEmail' => 'general@example.com',
+        ]);
+        $this->settings->setMany([
+            'Example.siteName' => 'YesContext',
+        ], 'testing:true');
+
+        $this->assertSame([
+            'Example.siteName'  => 'YesContext',
+            'Example.siteEmail' => 'general@example.com',
+        ], $this->settings->getMany([
+            'Example.siteName',
+            'Example.siteEmail',
+        ], 'testing:true'));
+    }
+
+    public function testGetManyPreservesRequestedKeys(): void
+    {
+        $this->settings->set('Example.siteName', 'BatchName');
+
+        $this->assertSame([
+            Example::class . '.siteName' => 'BatchName',
+            'Nada.siteName'              => null,
+        ], $this->settings->getMany([
+            Example::class . '.siteName',
+            'Nada.siteName',
+        ]));
+    }
+
+    public function testGetManyAcceptsEmptyArray(): void
+    {
+        $this->assertSame([], $this->settings->getMany([]));
+    }
+
     public function testSetManyStoresMultipleValues(): void
     {
         $this->settings->setMany([
