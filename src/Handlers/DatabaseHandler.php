@@ -81,6 +81,7 @@ class DatabaseHandler extends ArrayHandler
     public function set(string $class, string $property, $value = null, ?string $context = null): void
     {
         if ($this->deferWrites) {
+            $this->hydrate($context);
             $this->markPending($class, $property, $value, $context);
         } else {
             $this->persist($class, $property, $value, $context);
@@ -104,6 +105,8 @@ class DatabaseHandler extends ArrayHandler
         }
 
         if ($this->deferWrites) {
+            $this->hydrate($context);
+
             foreach ($settings as $setting) {
                 $this->markPending($setting['class'], $setting['property'], $setting['value'], $context);
                 $this->setStored($setting['class'], $setting['property'], $setting['value'], $context);
