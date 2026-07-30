@@ -109,7 +109,7 @@ abstract class BaseHandler
     protected function prepareValue($value)
     {
         if (is_bool($value)) {
-            return (int) $value;
+            return $value ? '1' : '0';
         }
 
         if (is_array($value) || is_object($value)) {
