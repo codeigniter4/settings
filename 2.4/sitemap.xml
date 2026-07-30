@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://settings.codeigniter.com/2.4/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://settings.codeigniter.com/2.4/basic-usage/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://settings.codeigniter.com/2.4/configuration/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://settings.codeigniter.com/2.4/installation/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+    <url>
+         <loc>https://settings.codeigniter.com/2.4/limitations/</loc>
+         <lastmod>2026-07-30</lastmod>
+    </url>
+</urlset>
